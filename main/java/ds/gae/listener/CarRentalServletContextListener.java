@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.google.cloud.datastore.*;
+
 import ds.gae.CarRentalModel;
 import ds.gae.entities.Car;
 import ds.gae.entities.CarRentalCompany;
@@ -19,6 +21,8 @@ import ds.gae.entities.CarType;
 
 public class CarRentalServletContextListener implements ServletContextListener {
 		
+	private Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
 		// This will be invoked as part of a warming request,
@@ -59,6 +63,13 @@ public class CarRentalServletContextListener implements ServletContextListener {
 			Set<Car> cars = loadData(name, datafile);
 			CarRentalCompany company = new CarRentalCompany(name, cars);
 			// FIXME: use persistence instead
+			Key crc = this.getDatastore().newKeyFactory()
+					.setKind("CarRentalCompany")
+					.newKey(name);
+					
+					
+					
+					
             CarRentalModel.get().CRCS.put(name, company);
 		} catch (NumberFormatException ex) {
 			Logger.getLogger(CarRentalServletContextListener.class.getName()).log(Level.SEVERE, "bad file", ex);
@@ -101,4 +112,13 @@ public class CarRentalServletContextListener implements ServletContextListener {
 	public void contextDestroyed(ServletContextEvent arg0) {
 		// Please leave this method empty.
 	}
+
+	public Datastore getDatastore() {
+		return datastore;
+	}
+
+
+	
+	
+	
 }
