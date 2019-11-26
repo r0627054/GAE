@@ -3,9 +3,12 @@ package ds.gae;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.cloud.datastore.*;
 
 import ds.gae.entities.Car;
 import ds.gae.entities.CarRentalCompany;
@@ -19,6 +22,9 @@ public class CarRentalModel {
 	// FIXME use persistence instead
 	public Map<String,CarRentalCompany> CRCS = new HashMap<String, CarRentalCompany>();	
 
+	private Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	
+	
 	private static CarRentalModel instance;
 
 	public static CarRentalModel get() {
@@ -50,8 +56,14 @@ public class CarRentalModel {
 	 * @return the list of car rental companies
 	 */
 	public Collection<String> getAllRentalCompanyNames() {
-		// FIXME use persistence instead
-    	return CRCS.keySet();
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("CarRentalCompany").build();
+		QueryResults<Entity> results = this.getDatastore().run(query);
+		Set<String> result = new HashSet<>();
+		while(results.hasNext()) {
+			Entity e = results.next();
+			result.add(e.getString("name"));
+		}
+    	return result;
 	}
 
 	/**
@@ -193,5 +205,10 @@ public class CarRentalModel {
 	 */
 	public boolean hasReservations(String renter) {
 		return this.getReservations(renter).size() > 0;
+	}
+	
+	
+	public Datastore getDatastore() {
+		return this.datastore;
 	}
 }
