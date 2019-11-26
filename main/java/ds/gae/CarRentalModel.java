@@ -65,8 +65,9 @@ public class CarRentalModel {
 	public Quote createQuote(String companyName, String renterName, ReservationConstraints constraints)
 			throws ReservationException {
 		// FIXME: use persistence instead
-    	CarRentalCompany crc = CRCS.get(companyName);
-		return crc.createQuote(constraints, renterName);
+    	//CarRentalCompany crc = CRCS.get(companyName);
+		//return crc.createQuote(constraints, renterName);
+		return null;
 	}
 
 	/**
@@ -78,8 +79,8 @@ public class CarRentalModel {
 	 */
 	public void confirmQuote(Quote quote) throws ReservationException {
 		// FIXME: use persistence instead
-		CarRentalCompany crc = CRCS.get(quote.getRentalCompany());
-		crc.confirmQuote(quote);
+		//CarRentalCompany crc = CRCS.get(quote.getRentalCompany());
+		//crc.confirmQuote(quote);
 	}
 
 	/**
@@ -104,7 +105,7 @@ public class CarRentalModel {
 	 */
 	public List<Reservation> getReservations(String renter) {
 		// FIXME: use persistence instead
-		List<Reservation> out = new ArrayList<Reservation>();	
+		/*List<Reservation> out = new ArrayList<Reservation>();	
     	for (CarRentalCompany crc : CRCS.values()) {
     		for (Car c : crc.getCars()) {
     			for (Reservation r : c.getReservations()) {
@@ -114,7 +115,8 @@ public class CarRentalModel {
     			}
     		}
     	}
-    	return out;
+    	return out;*/
+		return null;
 	}
 
 	/**
@@ -165,7 +167,7 @@ public class CarRentalModel {
 	 */
 	private List<Car> getCarsByCarType(String companyName, CarType carType) {
 		// FIXME: use persistence instead
-		List<Car> out = new ArrayList<Car>(); 
+		/*List<Car> out = new ArrayList<Car>(); 
 		for(CarRentalCompany crc : CRCS.values()) {
 			for (Car c : crc.getCars()) {
 				if (c.getType() == carType) { 
@@ -173,7 +175,8 @@ public class CarRentalModel {
 				}
 			}
 		}
-		return out;
+		return out;*/
+		return null;
 
 	}
 

@@ -60,25 +60,76 @@ public class CarRentalServletContextListener implements ServletContextListener {
 		Logger.getLogger(CarRentalServletContextListener.class.getName()).log(Level.INFO, "loading {0} from file {1}",
 				new Object[] { name, datafile });
 		try {
-			Set<Car> cars = loadData(name, datafile);
-			CarRentalCompany company = new CarRentalCompany(name, cars);
-			// FIXME: use persistence instead
-			Key crc = this.getDatastore().newKeyFactory()
+			
+			//THIS HAS TO BE IMPLEMENTED
+			//Set<Car> cars = loadData(name, datafile);
+			//CarRentalCompany company = new CarRentalCompany(name, cars);
+			//Storing a car rental company
+			Key crcKey = this.getDatastore().newKeyFactory()
 					.setKind("CarRentalCompany")
 					.newKey(name);
+			
+			Entity crcEntity = Entity.newBuilder(crcKey).set("name", name).build();
+			this.getDatastore().put(crcEntity);
+			loadData(name,datafile);					
 					
-					
-					
-					
-            CarRentalModel.get().CRCS.put(name, company);
+            //CarRentalModel.get().CRCS.put(name, company);
 		} catch (NumberFormatException ex) {
 			Logger.getLogger(CarRentalServletContextListener.class.getName()).log(Level.SEVERE, "bad file", ex);
 		} catch (IOException ex) {
 			Logger.getLogger(CarRentalServletContextListener.class.getName()).log(Level.SEVERE, null, ex);
 		}
 	}
+	
+	
+	public void loadData(String name, String datafile) throws NumberFormatException, IOException {
+		int carId = 1;
+		// open file from jar
+		BufferedReader in = new BufferedReader(new InputStreamReader(
+				CarRentalServletContextListener.class.getClassLoader().getResourceAsStream(datafile)));
+		// while next line exists
+		while (in.ready()) {
+			// read line
+			String line = in.readLine();
+			// if comment: skip
+			if (line.startsWith("#")) {
+				continue;
+			}
+			// tokenize on ,
+			StringTokenizer csvReader = new StringTokenizer(line, ",");
+			// create new car type from first 5 fields
+			//storing a car type
+			String carTypeName = csvReader.nextToken();
+			Key carTypeKey = this.getDatastore().newKeyFactory()
+					.addAncestors(PathElement.of("CarRentalCompany", name))
+					.setKind("CarType")
+					.newKey(carTypeName);
+			
+			Entity carTypeEntity = Entity.newBuilder(carTypeKey)
+					.set("nbOfSeats", Integer.parseInt(csvReader.nextToken()))
+					.set("trunkSpace", Float.parseFloat(csvReader.nextToken()))
+					.set("rentalPricePerDay", Double.parseDouble(csvReader.nextToken()))
+					.set("smokingAllowed", Boolean.parseBoolean(csvReader.nextToken())).build();
+			this.getDatastore().put(carTypeEntity);
+				
+			for (int i = Integer.parseInt(csvReader.nextToken()); i > 0; i--) {
+				int currentId = carId++;
+				Key carKey = this.getDatastore().newKeyFactory()
+						.addAncestors(PathElement.of("CarType", carTypeName))
+						.setKind("Car")
+						.newKey(currentId);
+				
+				Entity carEntity = Entity.newBuilder(carKey)
+						.set("id", currentId).build();
+				
+				this.getDatastore().put(carEntity);
+			}
+		}
 
-	public static Set<Car> loadData(String name, String datafile) throws NumberFormatException, IOException {
+	}
+	
+
+	/*public static Set<Car> loadData(String name, String datafile) throws NumberFormatException, IOException {
 		Set<Car> cars = new HashSet<Car>();
 		int carId = 1;
 
@@ -106,7 +157,7 @@ public class CarRentalServletContextListener implements ServletContextListener {
 		}
 
 		return cars;
-	}
+	}*/
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {

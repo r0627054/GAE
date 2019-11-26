@@ -1,6 +1,10 @@
 package ds.gae.entities;
 
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public class CarType {
 
@@ -86,4 +90,38 @@ public class CarType {
 		}
 		return true;
 	}
+	
+	
+	
+	private Car getCar(int uid) {
+		/*for (Car car : cars) {
+			if (car.getId() == uid) {
+				return car;
+			}
+		}
+		throw new IllegalArgumentException("<" + name + "> No car with uid " + uid);*/
+		return null;
+	}
+
+	public Set<Car> getCars() {
+		//return cars;
+		return null;
+	}
+
+	private List<Car> getAvailableCars(String carType, Date start, Date end) {
+		/*List<Car> availableCars = new LinkedList<Car>();
+		for (Car car : cars) {
+			if (car.getType().getName().equals(carType) && car.isAvailable(start, end)) {
+				availableCars.add(car);
+			}
+		}
+		return availableCars;*/
+		return null;
+	}
+	
+	
+	
+	
+	
+	
 }
