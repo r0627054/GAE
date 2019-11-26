@@ -27,6 +27,10 @@ public class CarRentalModel {
 		}
 		return instance;
 	}
+	
+	private CarRentalModel() {
+		//Private constructor so we cannot create multiple
+	}
 
 	/**
 	 * Get the car types available in the given car rental company.
