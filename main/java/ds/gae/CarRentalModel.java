@@ -22,7 +22,7 @@ public class CarRentalModel {
 	// FIXME use persistence instead
 	public Map<String,CarRentalCompany> CRCS = new HashMap<String, CarRentalCompany>();	
 
-	private Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	private static Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 	
 	
 	private static CarRentalModel instance;
@@ -95,6 +95,12 @@ public class CarRentalModel {
 	 */
 	public void confirmQuote(Quote quote) throws ReservationException {
 		// FIXME: use persistence instead
+		
+		//hier ga de crc opvragen
+		//en bouwen
+		// crc object aangemaakt
+		
+		
 		//CarRentalCompany crc = CRCS.get(quote.getRentalCompany());
 		//crc.confirmQuote(quote);
 	}

@@ -78,5 +78,38 @@ public class CarRentalCompany {
 	 * RESERVATIONS *
 	 ****************/
 
+	
+	
+	public Quote createQuote(ReservationConstraints constraints, String client) throws ReservationException {
+		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}",
+				new Object[] { name, client, constraints.toString() });
+
+		CarType type = getCarType(constraints.getCarType());
+
+		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
+			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
+		}
+
+		double price = calculateRentalPrice(
+				type.getRentalPricePerDay(), 
+				constraints.getStartDate(),
+				constraints.getEndDate()
+		);
+
+		return new Quote(
+				client,
+				constraints.getStartDate(),
+				constraints.getEndDate(),
+				getName(),
+				constraints.getCarType(),
+				price
+		);
+	}
+	
+	
+	// Implementation can be subject to different pricing strategies
+	private double calculateRentalPrice(double rentalPricePerDay, Date start, Date end) {
+		return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24D));
+	}
 
 }
