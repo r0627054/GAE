@@ -14,3 +14,15 @@ gcloud beta emulators datastore start --host-port 127.0.0.1:8081 --project distr
 ```
 
 --> de eerste keer dingen installeren --> hierna command her opstarten
+
+
+
+#OPLOSSING
+
+Doe alle volgende stappen:
+https://cloud.google.com/sdk/docs/downloads-interactive#windows
+
+```
+cd "C:\Program Files (x86)\Google\Cloud SDK>"
+gcloud beta emulators datastore start --host-port 127.0.0.1:8081 --project distributed-systems-gae --no-store-on-disk
+```
