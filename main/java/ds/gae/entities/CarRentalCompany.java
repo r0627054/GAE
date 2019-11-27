@@ -12,6 +12,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.google.api.Property.PropertyType;
+import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
@@ -64,24 +65,21 @@ public class CarRentalCompany {
 		System.out.println("CRC: getCarType " + carTypeName + " " + getName());
 
 		Datastore ds = CarRentalModel.getDatastore();
-
+//TODO check ancestor filter
 //CompositeFilter.and(
 //		PropertyFilter.hasAncestor(ds.newKeyFactory().setKind("CarRentalCompany").newKey(getName())),
+		Key carTypeKey = ds.newKeyFactory().addAncestors(PathElement.of("CarRentalCompany", getName()))
+				.setKind("CarType").newKey(carTypeName);
 
-//		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType")
-//				.setFilter(
-//						PropertyFilter.gt("__key__", ds.newKeyFactory().setKind("CarType").newKey(carTypeName)))
-//				.build();
-//		QueryResults<Entity> results = ds.run(q);
+		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType")
+				.setFilter(PropertyFilter.gt("__key__", carTypeKey)).build();
+		QueryResults<Entity> results = ds.run(q);
 
-//		if (results.hasNext()) {
-//			System.out.println("CRC: getCarType FOUND!");
-//			return CarType.parse(results.next());
-//		} else {
-//			System.out.println("CRC: getCarType not FOUND :(");
-//			return null;
-//		}
-		return null;
+		if (results.hasNext()) {
+			return CarType.parse(results.next());
+		} else {
+			return null;
+		}
 	}
 
 	public boolean isAvailable(String carTypeName, Date start, Date end) {
@@ -97,7 +95,52 @@ public class CarRentalCompany {
 		 * availableCarTypes.add(car.getType()); } }
 		 */
 		// return availableCarTypes;
-		return null;
+
+		Datastore ds = CarRentalModel.getDatastore();
+		Timestamp startTime = Timestamp.of(start);
+		Timestamp endTime = Timestamp.of(end);
+		Set<CarType> result = new HashSet<>();
+
+		// TODO DatastoreException: Only one inequality filter per query is supported.
+		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").build();
+		QueryResults<Entity> queryResults = ds.run(q);
+
+		queryResults.forEachRemaining(res -> {
+			result.add(CarType.parse(res));
+		});
+
+		return result;
+
+		/*
+		 * queryResults.forEachRemaining(res -> { Key carTypeKey =
+		 * ds.newKeyFactory().addAncestors(PathElement.of("CarRentalCompany",
+		 * getName())) .setKind("CarType").newKey(res.getKey().getName());
+		 * 
+		 * 
+		 * // Key resKey =
+		 * getDatastore().newKeyFactory().addAncestors(PathElement.of("Car", 80), //
+		 * PathElement.of("CarType", constraints.getCarType()),
+		 * PathElement.of("CarRentalCompany", companyName)) //
+		 * .setKind("Reservation").newKey(1);
+		 * 
+		 * Query<Entity> carQuery =
+		 * Query.newEntityQueryBuilder().setKind("Reservation").setFilter(PropertyFilter
+		 * .hasAncestor(carTypeKey)).build(); QueryResults<Entity> carQueryResults =
+		 * ds.run(carQuery);
+		 * 
+		 * carQueryResults.forEachRemaining(carE -> {
+		 * 
+		 * Car car = Car.parse(carE);
+		 * 
+		 * if(car)
+		 * 
+		 * result.add(CarType.parse(res));
+		 * 
+		 * });
+		 * 
+		 * 
+		 * });
+		 */
 	}
 
 	/*********

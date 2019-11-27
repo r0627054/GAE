@@ -37,21 +37,16 @@ public class PersistTestServlet extends HttpServlet {
 						Tools.DATE_FORMAT.parse("14.12.2019"), "Compact");
 
 				System.out.println("Servlet creating quote...");
-				// final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
-//				System.out.println("Servlet created quote. Confirming quote...");
+				final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
+				System.out.println("Servlet created quote. Confirming quote...");
 //				CarRentalModel.get().confirmQuote(q);
 //				System.out.println("Servlet confirmed quote!");
 			}
 
 			resp.sendRedirect(JSPSite.PERSIST_TEST.url());
-		} catch (ParseException e) {
+		} catch (Exception e) { //TODO ReservationException | ParseException
 			logger.log(Level.SEVERE, e.getMessage(), e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 		}
-//		} catch (ReservationException e) {
-//			logger.log(Level.SEVERE, e.getMessage(), e);
-//			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-//		}
-
 	}
 }
