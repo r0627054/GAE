@@ -14,6 +14,7 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Transaction;
 
 import ds.gae.entities.Car;
 import ds.gae.entities.CarRentalCompany;
@@ -23,7 +24,7 @@ import ds.gae.entities.Reservation;
 import ds.gae.entities.ReservationConstraints;
 
 public class CarRentalModel {
-	
+
 	private static Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 	private static CarRentalModel instance;
@@ -44,16 +45,17 @@ public class CarRentalModel {
 	 */
 	public Set<String> getCarTypesNames(String companyName) {
 		Key crcKey = datastore.newKeyFactory().setKind("CarRentalCompany").newKey(companyName);
-		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").setFilter(PropertyFilter.hasAncestor(crcKey)).build();
-		
+		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").setFilter(PropertyFilter.hasAncestor(crcKey))
+				.build();
+
 		QueryResults<Entity> queryResults = datastore.run(q);
-		
+
 		Set<String> results = new HashSet<>();
-		
-		queryResults.forEachRemaining(res ->{
+
+		queryResults.forEachRemaining(res -> {
 			results.add(CarType.parse(res).getName());
 		});
-		
+
 		return results;
 	}
 
@@ -105,16 +107,20 @@ public class CarRentalModel {
 	 * Confirm the given quote.
 	 *
 	 * @param quote Quote to confirm
+	 * @return the Reservation that is created
 	 * 
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
-	public void confirmQuote(Quote quote) throws ReservationException {
+	public Reservation confirmQuote(Quote quote, Transaction tx) throws ReservationException {
+		if (tx == null) {
+			tx = datastore.newTransaction();
+		}
 		Datastore ds = getDatastore();
 		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
 		Entity crcEntity = ds.get(crcKey);
 
 		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
-		crc.confirmQuote(quote);
+		return crc.confirmQuote(quote, tx);
 	}
 
 	/**
@@ -128,10 +134,20 @@ public class CarRentalModel {
 	 */
 	public List<Reservation> confirmQuotes(List<Quote> quotes) throws ReservationException {
 		List<Reservation> result = new ArrayList<Reservation>();
-		for (Quote q : quotes) {
+		Transaction tx = datastore.newTransaction();
 
+		try {
+			for (Quote q : quotes) {
+				result.add(confirmQuote(q, tx));
+			}
+			return result;
+
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
 		}
-		return result;
+
 	}
 
 	/**

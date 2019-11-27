@@ -12,6 +12,7 @@ import com.google.cloud.datastore.IncompleteKey;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Transaction;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.PathElement;
 
@@ -72,54 +73,32 @@ public class Car {
 
 	}
 
-	public void addReservation(Reservation res) {
+	public Reservation addReservation(Quote quote, int carId, Transaction tx) {
 		Datastore ds = CarRentalModel.getDatastore();
 
-		Key resKey = ds.allocateId(ds.newKeyFactory().addAncestors(PathElement.of("CarType", res.getCarType()),
-				PathElement.of("CarRentalCompany", res.getRentalCompany()), PathElement.of("Car", res.getCarId()))
+		Key resKey = ds.allocateId(ds.newKeyFactory()
+				.addAncestors(PathElement.of("CarRentalCompany", quote.getRentalCompany()),
+						PathElement.of("CarType", quote.getCarType()), PathElement.of("Car", carId))
 				.setKind("Reservation").newKey());
 
-		Entity carEntity = Entity.newBuilder(resKey).set("rentalCompany", res.getRentalCompany())
-				.set("startDate", Timestamp.of(res.getStartDate())).set("endDate", Timestamp.of(res.getEndDate()))
-				.set("renter", res.getRenter()).set("carType", res.getCarType())
-				.set("rentalPrice", res.getRentalPrice()).build();
+		Entity carEntity = Entity.newBuilder(resKey).set("rentalCompany", quote.getRentalCompany())
+				.set("startDate", Timestamp.of(quote.getStartDate())).set("endDate", Timestamp.of(quote.getEndDate()))
+				.set("renter", quote.getRenter()).set("carType", quote.getCarType())
+				.set("rentalPrice", quote.getRentalPrice()).build();
 
-		ds.put(carEntity);
+		tx.put(carEntity);
+		return new Reservation(resKey.getId(), quote, carId);
 	}
 
-	public void removeReservation(Reservation reservation) {
-		// reservations.remove(reservation);
-		// TODO
-	}
+	public void removeReservation(Reservation res) {
+		Datastore ds = CarRentalModel.getDatastore();
 
-	/*
-	 * public Quote createQuote(ReservationConstraints constraints, String client)
-	 * throws ReservationException { logger.log(Level.INFO,
-	 * "<{0}> Creating tentative reservation for {1} with constraints {2}", new
-	 * Object[] { name, client, constraints.toString() });
-	 * 
-	 * CarType type = getCarType(constraints.getCarType());
-	 * 
-	 * if (!isAvailable(constraints.getCarType(), constraints.getStartDate(),
-	 * constraints.getEndDate())) { throw new ReservationException("<" + name +
-	 * "> No cars available to satisfy the given constraints."); }
-	 * 
-	 * double price = calculateRentalPrice( type.getRentalPricePerDay(),
-	 * constraints.getStartDate(), constraints.getEndDate() );
-	 * 
-	 * return new Quote( client, constraints.getStartDate(),
-	 * constraints.getEndDate(), getName(), constraints.getCarType(), price ); }
-	 */
-
-// Implementation can be subject to different pricing strategies
-	private double calculateRentalPrice(double rentalPricePerDay, Date start, Date end) {
-		return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24D));
+		Key key = ds.newKeyFactory().setKind("Reservation").newKey(res.getReservationId());
+		ds.delete(key);
 	}
 
 	public void cancelReservation(Reservation res) {
-		// logger.log(Level.INFO, "<{0}> Cancelling reservation {1}", new Object[] {
-		// name, res.toString() });
-		// getCar(res.getCarId()).removeReservation(res);
+		this.removeReservation(res);
 	}
 
 	public static Car parse(Entity car) {

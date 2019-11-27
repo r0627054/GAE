@@ -23,6 +23,7 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Transaction;
 
 import ds.gae.CarRentalModel;
 import ds.gae.ReservationException;
@@ -64,9 +65,6 @@ public class CarRentalCompany {
 
 	public CarType getCarType(String carTypeName) {
 		Datastore ds = CarRentalModel.getDatastore();
-//TODO check ancestor filter
-//CompositeFilter.and(
-//		PropertyFilter.hasAncestor(ds.newKeyFactory().setKind("CarRentalCompany").newKey(getName())),
 		Key carTypeKey = ds.newKeyFactory().addAncestors(PathElement.of("CarRentalCompany", getName()))
 				.setKind("CarType").newKey(carTypeName);
 
@@ -87,63 +85,37 @@ public class CarRentalCompany {
 	}
 
 	public Set<CarType> getAvailableCarTypes(Date start, Date end) {
-
-		/*
-		 * Set<CarType> availableCarTypes = new HashSet<CarType>(); for (Car car :
-		 * getCars()) { if (car.isAvailable(start, end)) {
-		 * availableCarTypes.add(car.getType()); } }
-		 */
-		// return availableCarTypes;
-
 		Datastore ds = CarRentalModel.getDatastore();
 		Timestamp startTime = Timestamp.of(start);
 		Timestamp endTime = Timestamp.of(end);
 		Set<CarType> result = new HashSet<>();
 
-		// TODO DatastoreException: Only one inequality filter per query is supported.
-		Query<Entity> qTypes = Query.newEntityQueryBuilder().setKind("CarType").build();
+		// Get all CarTypes of company
+		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(getName());
+		Query<Entity> qTypes = Query.newEntityQueryBuilder().setKind("CarType")
+				.setFilter(PropertyFilter.hasAncestor(crcKey)).build();
 		QueryResults<Entity> queryCarTypeResults = ds.run(qTypes);
 
+		// For each carType
 		queryCarTypeResults.forEachRemaining(res -> {
-			result.add(CarType.parse(res));
 
-//			Query<Entity> q = Query.newEntityQueryBuilder().setKind("Reservation").setFilter(filter).build();
-//			QueryResults<Entity> queryResults = ds.run(q);
+			// Get the cars of this CarType
+			Key carTypeKey = ds.newKeyFactory().setKind("CarType").newKey(res.getKey().getName());
+
+			Query<Entity> q = Query.newEntityQueryBuilder().setKind("Car").setFilter(CompositeFilter
+					.and(PropertyFilter.hasAncestor(carTypeKey), PropertyFilter.eq("carRentalCompanyName", getName())))
+					.build();
+			QueryResults<Entity> queryCarResults = ds.run(q);
+
+			// If the car is available, add the TYPE to the result.
+			queryCarResults.forEachRemaining(carRes -> {
+				if (Car.parse(carRes).isAvailable(start, end)) {
+					result.add(CarType.parse(res));
+				} // Result is set, so no duplicates
+			});
 
 		});
-
 		return result;
-
-		/*
-		 * queryResults.forEachRemaining(res -> { Key carTypeKey =
-		 * ds.newKeyFactory().addAncestors(PathElement.of("CarRentalCompany",
-		 * getName())) .setKind("CarType").newKey(res.getKey().getName());
-		 * 
-		 * 
-		 * // Key resKey =
-		 * getDatastore().newKeyFactory().addAncestors(PathElement.of("Car", 80), //
-		 * PathElement.of("CarType", constraints.getCarType()),
-		 * PathElement.of("CarRentalCompany", companyName)) //
-		 * .setKind("Reservation").newKey(1);
-		 * 
-		 * Query<Entity> carQuery =
-		 * Query.newEntityQueryBuilder().setKind("Reservation").setFilter(PropertyFilter
-		 * .hasAncestor(carTypeKey)).build(); QueryResults<Entity> carQueryResults =
-		 * ds.run(carQuery);
-		 * 
-		 * carQueryResults.forEachRemaining(carE -> {
-		 * 
-		 * Car car = Car.parse(carE);
-		 * 
-		 * if(car)
-		 * 
-		 * result.add(CarType.parse(res));
-		 * 
-		 * });
-		 * 
-		 * 
-		 * });
-		 */
 	}
 
 	/*********
@@ -160,11 +132,9 @@ public class CarRentalCompany {
 
 		CarType type = getCarType(constraints.getCarType());
 
-//		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
-//			System.out.println("not available");
-//			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
-//		}
-//		System.out.println("is available"); TODO
+		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
+			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
+		}
 
 		double price = calculateRentalPrice(type.getRentalPricePerDay(), constraints.getStartDate(),
 				constraints.getEndDate());
@@ -172,7 +142,7 @@ public class CarRentalCompany {
 				constraints.getCarType(), price);
 	}
 
-	public Reservation confirmQuote(Quote quote) throws ReservationException {
+	public Reservation confirmQuote(Quote quote, Transaction tx) throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[] { name, quote.toString() });
 
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
@@ -184,8 +154,7 @@ public class CarRentalCompany {
 
 		Car car = availableCars.get((int) (Math.random() * availableCars.size()));
 
-		Reservation res = new Reservation(quote, car.getId());
-		car.addReservation(res);
+		Reservation res = car.addReservation(quote, car.getId(), tx);
 		return res;
 	}
 
@@ -195,9 +164,8 @@ public class CarRentalCompany {
 
 		Key carTypeKey = ds.newKeyFactory().setKind("CarType").newKey(carType);
 
-		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Car")
-				.setFilter(
-						CompositeFilter.and(PropertyFilter.hasAncestor(carTypeKey), PropertyFilter.eq("carRentalCompanyName", getName())))
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Car").setFilter(CompositeFilter
+				.and(PropertyFilter.hasAncestor(carTypeKey), PropertyFilter.eq("carRentalCompanyName", getName())))
 				.build();
 
 		QueryResults<Entity> queryResults = ds.run(query);

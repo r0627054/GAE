@@ -9,15 +9,17 @@ import com.google.cloud.datastore.Entity;
 public class Reservation extends Quote {
 
 	private int carId;
+	private long reservationId;
 
 	/***************
 	 * CONSTRUCTOR *
 	 ***************/
 
-	public Reservation(Quote quote, int carId) {
+	public Reservation(long reservationId, Quote quote, int carId) {
 		this(quote.getRenter(), quote.getStartDate(), quote.getEndDate(), quote.getRentalCompany(), quote.getCarType(),
 				quote.getRentalPrice());
 		this.carId = carId;
+		this.reservationId = reservationId;
 	}
 
 	private Reservation(String renter, Date start, Date end, String rentalCompany, String carType,
@@ -31,6 +33,10 @@ public class Reservation extends Quote {
 
 	public int getCarId() {
 		return carId;
+	}
+	
+	public long getReservationId() {
+		return reservationId;
 	}
 
 	/*************
@@ -62,15 +68,9 @@ public class Reservation extends Quote {
 	}
 
 	public static Reservation parse(Entity res) {
-		return new Reservation(new Quote(res.getString("renter"), res.getTimestamp("endDate").toDate(),
+		return new Reservation(res.getKey().getId(), new Quote(res.getString("renter"), res.getTimestamp("endDate").toDate(),
 				res.getTimestamp("startDate").toDate(), res.getString("rentalCompany"), res.getString("carType"),
 				res.getDouble("rentalPrice")), res.getKey().getId().intValue());
 	}
-	// private Date startDate;
-//	private Date endDate;
-//	private String renter;
-//	private String rentalCompany;
-//	private String carType;
-//	private double rentalPrice;
 
 }

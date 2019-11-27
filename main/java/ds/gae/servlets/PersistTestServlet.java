@@ -3,7 +3,10 @@ package ds.gae.servlets;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -23,8 +26,8 @@ import ds.gae.view.Tools;
 public class PersistTestServlet extends HttpServlet {
 
 	private static Logger logger = Logger.getLogger(PersistTestServlet.class.getName());
-	
-	private List<Quote> sessionQuotes = new ArrayList<>();
+
+	private Map<String, List<Quote>> sessionQuotes = new HashMap<>();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -40,20 +43,29 @@ public class PersistTestServlet extends HttpServlet {
 				ReservationConstraints c = new ReservationConstraints(Tools.DATE_FORMAT.parse("08.12.2019"),
 						Tools.DATE_FORMAT.parse("14.12.2020"), "Compact");
 
-				System.out.println("Servlet creating quote...");
 				final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
-				
-				System.out.println("Servlet created quote. Confirming quote...");
-				sessionQuotes.add(q);
-				
-				CarRentalModel.get().confirmQuote(q);
-				System.out.println("Servlet confirmed quote!");
+				addToMap(userName, q);
+				CarRentalModel.get().confirmQuote(q, null);
 			}
 
 			resp.sendRedirect(JSPSite.PERSIST_TEST.url());
-		} catch (Exception e) { //TODO ReservationException | ParseException
+		} catch (ReservationException | ParseException e) {
 			logger.log(Level.SEVERE, e.getMessage(), e);
 			resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	private void addToMap(String userName, Quote newQuote) {
+		List<Quote> quotesOfUser = sessionQuotes.get(userName);
+
+		if (quotesOfUser == null) {
+			quotesOfUser = new ArrayList<Quote>();
+			quotesOfUser.add(newQuote);
+			sessionQuotes.put(userName, quotesOfUser);
+		} else {
+			if (!quotesOfUser.contains(newQuote)) {
+				quotesOfUser.add(newQuote);
+			}
 		}
 	}
 }
