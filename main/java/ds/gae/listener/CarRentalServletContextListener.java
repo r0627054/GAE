@@ -25,15 +25,9 @@ public class CarRentalServletContextListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
-		// This will be invoked as part of a warming request,
-		// or the first user request if no warming request was invoked.
 
-		// check if dummy data is available, and add if necessary
 		if (!isDummyDataAvailable()) {
-			System.out.println("Dummy data not available.");
 			addDummyData();
-		} else {
-			System.out.println("Dummy data available.");
 		}
 
 		// check that correct launch configuration is used
@@ -64,19 +58,12 @@ public class CarRentalServletContextListener implements ServletContextListener {
 				new Object[] { name, datafile });
 		try {
 
-			// THIS HAS TO BE IMPLEMENTED
-			// Set<Car> cars = loadData(name, datafile);
-			// CarRentalCompany company = new CarRentalCompany(name, cars);
-			// Storing a car rental company
-
-			System.out.println("Loading " + name + "...");
 			Key crcKey = this.getDatastore().newKeyFactory().setKind("CarRentalCompany").newKey(name);
 
 			Entity crcEntity = Entity.newBuilder(crcKey).set("name", name).build();
 			this.getDatastore().put(crcEntity);
 			loadData(name, datafile);
 
-			// CarRentalModel.get().CRCS.put(name, company);
 		} catch (NumberFormatException ex) {
 			Logger.getLogger(CarRentalServletContextListener.class.getName()).log(Level.SEVERE, "bad file", ex);
 		} catch (IOException ex) {
@@ -125,30 +112,6 @@ public class CarRentalServletContextListener implements ServletContextListener {
 		}
 
 	}
-
-	/*
-	 * public static Set<Car> loadData(String name, String datafile) throws
-	 * NumberFormatException, IOException { Set<Car> cars = new HashSet<Car>(); int
-	 * carId = 1;
-	 * 
-	 * // open file from jar BufferedReader in = new BufferedReader(new
-	 * InputStreamReader(
-	 * CarRentalServletContextListener.class.getClassLoader().getResourceAsStream(
-	 * datafile))); // while next line exists while (in.ready()) { // read line
-	 * String line = in.readLine(); // if comment: skip if (line.startsWith("#")) {
-	 * continue; } // tokenize on , StringTokenizer csvReader = new
-	 * StringTokenizer(line, ","); // create new car type from first 5 fields
-	 * CarType type = new CarType(csvReader.nextToken(),
-	 * Integer.parseInt(csvReader.nextToken()),
-	 * Float.parseFloat(csvReader.nextToken()),
-	 * Double.parseDouble(csvReader.nextToken()),
-	 * Boolean.parseBoolean(csvReader.nextToken())); // create N new cars with given
-	 * type, where N is the 5th field for (int i =
-	 * Integer.parseInt(csvReader.nextToken()); i > 0; i--) { cars.add(new
-	 * Car(carId++, type)); } }
-	 * 
-	 * return cars; }
-	 */
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {

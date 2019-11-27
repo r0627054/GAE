@@ -3,21 +3,15 @@ package ds.gae.entities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.google.api.Property.PropertyType;
-import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.KeyFactory;
 import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
@@ -86,8 +80,6 @@ public class CarRentalCompany {
 
 	public Set<CarType> getAvailableCarTypes(Date start, Date end) {
 		Datastore ds = CarRentalModel.getDatastore();
-		Timestamp startTime = Timestamp.of(start);
-		Timestamp endTime = Timestamp.of(end);
 		Set<CarType> result = new HashSet<>();
 
 		// Get all CarTypes of company

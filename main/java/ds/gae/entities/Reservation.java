@@ -3,7 +3,6 @@ package ds.gae.entities;
 import java.util.Date;
 import java.util.Objects;
 
-import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Entity;
 
 public class Reservation extends Quote {

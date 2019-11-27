@@ -1,20 +1,18 @@
 package ds.gae.entities;
 
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
-import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.PathElement;
 import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
-import com.google.cloud.datastore.Key;
-import com.google.cloud.datastore.PathElement;
 
 import ds.gae.CarRentalModel;
 

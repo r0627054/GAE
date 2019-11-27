@@ -1,10 +1,6 @@
 package ds.gae.entities;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import com.google.cloud.datastore.Entity;
 
@@ -80,19 +76,6 @@ public class CarType {
 			return false;
 		}
 		return true;
-	}
-
-	private Car getCar(int uid) {
-		/*
-		 * for (Car car : cars) { if (car.getId() == uid) { return car; } } throw new
-		 * IllegalArgumentException("<" + name + "> No car with uid " + uid);
-		 */
-		return null;
-	}
-
-	public Set<Car> getCars() {
-		// return cars;
-		return null;
 	}
 
 	public static CarType parse(Entity e) {

@@ -3,8 +3,7 @@ package ds.gae.view;
 import java.util.stream.Stream;
 
 public enum JSPSite {
-	LOGIN("Login", "/login.jsp", false),
-	PERSIST_TEST_SERVLET("Persist Test", "/persistTest", true),
+	LOGIN("Login", "/login.jsp", false), PERSIST_TEST_SERVLET("Persist Test", "/persistTest", true),
 	PERSIST_TEST("Persist Test", "/persistTest.jsp", false);
 
 	/**

@@ -141,7 +141,7 @@ public class CarRentalModel {
 	 */
 	public Reservation confirmQuoteWithTransaction(Quote quote, Transaction tx) throws ReservationException {
 		if (tx == null) {
-			tx = datastore.newTransaction();
+			tx = getDatastore().newTransaction();
 		}
 		Datastore ds = getDatastore();
 		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
@@ -162,7 +162,7 @@ public class CarRentalModel {
 	 */
 	public List<Reservation> confirmQuotes(List<Quote> quotes) throws ReservationException {
 		List<Reservation> result = new ArrayList<Reservation>();
-		Transaction tx = datastore.newTransaction();
+		Transaction tx = getDatastore().newTransaction();
 
 		try {
 			for (Quote q : quotes) {
@@ -256,26 +256,7 @@ public class CarRentalModel {
 	 */
 	private List<Car> getCarsByCarType(String companyName, CarType carType) {
 		List<Car> result = new ArrayList<>();
-
-//		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Car")
-//				.setFilter(CompositeFilter.and(
-//						PropertyFilter.hasAncestor(
-//								getDatastore().newKeyFactory().setKind("CarRentalCompany").newKey(companyName)),
-//						PropertyFilter.hasAncestor(
-//								getDatastore().newKeyFactory().setKind("CarType").newKey(carType.getName()))))
-//				.setFilter(PropertyFilter.hasAncestor(getDatastore().newKeyFactory().setKind("CarRentalCompany").newKey(companyName)))
-//				.setFilter(PropertyFilter
-//						.hasAncestor(getDatastore().newKeyFactory().setKind("CarType").newKey(carType.getName())))
-//				.setFilter(PropertyFilter.eq("name", companyName))
-//				.build();
-//
-//		Key key = getDatastore().newKeyFactory().setKind("CarType")
-//				.addAncestor(PathElement.of("CarRentalCompany", companyName)).newKey(carType.getName());
-//		Entity en = getDatastore().get(key);
-//		Query<Entity> q = Query.newEntityQueryBuilder().setKind("Car").setFilter(PropertyFilter.hasAncestor(key))
-//				.build();
-//		Key key2 = getDatastore().newKeyFactory().setKind("CarType").newKey(en.getKey().getName());
-
+		
 		Query<Entity> q = Query.newEntityQueryBuilder().setKind("Car")
 				.setFilter(
 						CompositeFilter.and(PropertyFilter.eq("carRentalCompanyName", companyName),
