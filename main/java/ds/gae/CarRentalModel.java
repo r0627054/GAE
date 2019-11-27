@@ -44,11 +44,11 @@ public class CarRentalModel {
 	 *         car rental company.
 	 */
 	public Set<String> getCarTypesNames(String companyName) {
-		Key crcKey = datastore.newKeyFactory().setKind("CarRentalCompany").newKey(companyName);
+		Key crcKey = getDatastore().newKeyFactory().setKind("CarRentalCompany").newKey(companyName);
 		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").setFilter(PropertyFilter.hasAncestor(crcKey))
 				.build();
 
-		QueryResults<Entity> queryResults = datastore.run(q);
+		QueryResults<Entity> queryResults = getDatastore().run(q);
 
 		Set<String> results = new HashSet<>();
 
@@ -91,7 +91,7 @@ public class CarRentalModel {
 	public Quote createQuote(String companyName, String renterName, ReservationConstraints constraints)
 			throws ReservationException {
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("CarRentalCompany")
-				.setFilter(PropertyFilter.eq("name", companyName)).build();
+				.setFilter(PropertyFilter.eq("name", companyName)).build();// TODO
 		QueryResults<Entity> results = getDatastore().run(query);
 
 		if (results.hasNext()) {
@@ -111,7 +111,35 @@ public class CarRentalModel {
 	 * 
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
-	public Reservation confirmQuote(Quote quote, Transaction tx) throws ReservationException {
+	public Reservation confirmQuote(Quote quote) throws ReservationException {
+		Transaction tx = getDatastore().newTransaction();
+		try {
+			Datastore ds = getDatastore();
+			Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
+			Entity crcEntity = ds.get(crcKey);
+
+			CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
+			return crc.confirmQuote(quote, tx);
+
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+				throw new ReservationException("Error confirming quotes. All reservations are rolled back.");
+			}
+		}
+
+	}
+
+	/**
+	 * Confirm the given quote.
+	 *
+	 * @param quote Quote to confirm
+	 * @param tx    Transaction to use
+	 * @return the Reservation that is created
+	 * 
+	 * @throws ReservationException Confirmation of given quote failed.
+	 */
+	public Reservation confirmQuoteWithTransaction(Quote quote, Transaction tx) throws ReservationException {
 		if (tx == null) {
 			tx = datastore.newTransaction();
 		}
@@ -138,14 +166,16 @@ public class CarRentalModel {
 
 		try {
 			for (Quote q : quotes) {
-				result.add(confirmQuote(q, tx));
+				result.add(confirmQuoteWithTransaction(q, tx));
 			}
 			return result;
 
 		} finally {
 			if (tx.isActive()) {
 				tx.rollback();
+				throw new ReservationException("Error confirming quotes. All reservations are rolled back.");
 			}
+
 		}
 
 	}

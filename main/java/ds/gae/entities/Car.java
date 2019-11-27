@@ -87,6 +87,7 @@ public class Car {
 				.set("rentalPrice", quote.getRentalPrice()).build();
 
 		tx.put(carEntity);
+		tx.commit();
 		return new Reservation(resKey.getId(), quote, carId);
 	}
 

@@ -118,10 +118,6 @@ public class CarRentalCompany {
 		return result;
 	}
 
-	/*********
-	 * CARS *
-	 *********/
-
 	/****************
 	 * RESERVATIONS *
 	 ****************/
@@ -130,11 +126,11 @@ public class CarRentalCompany {
 		logger.log(Level.INFO, "<{0}> Creating tentative reservation for {1} with constraints {2}",
 				new Object[] { name, client, constraints.toString() });
 
-		CarType type = getCarType(constraints.getCarType());
-
 		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
 			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
 		}
+		
+		CarType type = getCarType(constraints.getCarType());
 
 		double price = calculateRentalPrice(type.getRentalPricePerDay(), constraints.getStartDate(),
 				constraints.getEndDate());
@@ -158,6 +154,10 @@ public class CarRentalCompany {
 		return res;
 	}
 
+	/*********
+	 * CARS *
+	 *********/
+	
 	private List<Car> getAvailableCars(String carType, Date start, Date end) {
 		List<Car> result = new ArrayList<Car>();
 		Datastore ds = CarRentalModel.getDatastore();

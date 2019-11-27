@@ -38,14 +38,14 @@ public class PersistTestServlet extends HttpServlet {
 
 		try {
 
-			if (CarRentalModel.get().getReservations(userName).size() < 5) {
+			if (CarRentalModel.get().getReservations(userName).size() == 0) {
 
 				ReservationConstraints c = new ReservationConstraints(Tools.DATE_FORMAT.parse("08.12.2019"),
-						Tools.DATE_FORMAT.parse("14.12.2020"), "Compact");
+						Tools.DATE_FORMAT.parse("14.12.2019"), "Compact");
 
 				final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
 				addToMap(userName, q);
-				CarRentalModel.get().confirmQuote(q, null);
+				CarRentalModel.get().confirmQuote(q);
 			}
 
 			resp.sendRedirect(JSPSite.PERSIST_TEST.url());
