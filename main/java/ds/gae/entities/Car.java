@@ -5,7 +5,17 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import com.google.cloud.Timestamp;
+import com.google.cloud.datastore.Datastore;
 import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.IncompleteKey;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
+import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.PathElement;
+
+import ds.gae.CarRentalModel;
 
 public class Car {
 
@@ -43,19 +53,38 @@ public class Car {
 		if (!start.before(end)) {
 			throw new IllegalArgumentException("Illegal given period");
 		}
+		Datastore ds = CarRentalModel.getDatastore();
 
-		/*
-		 * for (Reservation reservation : getReservations()) { if
-		 * (reservation.getEndDate().before(start) ||
-		 * reservation.getStartDate().after(end)) { continue; } return false; }
-		 */
-		// TODO
+		Key carKey = ds.newKeyFactory().setKind("Car").newKey(getId());
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Reservation")
+				.setFilter(PropertyFilter.hasAncestor(carKey)).build();
+
+		QueryResults<Entity> queryResults = ds.run(query);
+
+		if (queryResults.hasNext()) {
+			Reservation reservation = Reservation.parse(queryResults.next());
+
+			if (reservation.getEndDate().before(start) && reservation.getStartDate().after(end)) {
+				return false;
+			}
+		}
 		return true;
+
 	}
 
 	public void addReservation(Reservation res) {
-		// reservations.add(res);
-		// TODO
+		Datastore ds = CarRentalModel.getDatastore();
+
+		Key resKey = ds.allocateId(ds.newKeyFactory().addAncestors(PathElement.of("CarType", res.getCarType()),
+				PathElement.of("CarRentalCompany", res.getRentalCompany()), PathElement.of("Car", res.getCarId()))
+				.setKind("Reservation").newKey());
+
+		Entity carEntity = Entity.newBuilder(resKey).set("rentalCompany", res.getRentalCompany())
+				.set("startDate", Timestamp.of(res.getStartDate())).set("endDate", Timestamp.of(res.getEndDate()))
+				.set("renter", res.getRenter()).set("carType", res.getCarType())
+				.set("rentalPrice", res.getRentalPrice()).build();
+
+		ds.put(carEntity);
 	}
 
 	public void removeReservation(Reservation reservation) {
@@ -85,23 +114,6 @@ public class Car {
 // Implementation can be subject to different pricing strategies
 	private double calculateRentalPrice(double rentalPricePerDay, Date start, Date end) {
 		return rentalPricePerDay * Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24D));
-	}
-
-	public Reservation confirmQuote(Quote quote) {
-		// logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[] { name,
-		// quote.toString() });
-		/*
-		 * List<Car> availableCars = getAvailableCars(quote.getCarType(),
-		 * quote.getStartDate(), quote.getEndDate()); if (availableCars.isEmpty()) {
-		 * throw new ReservationException("Reservation failed, all cars of type " +
-		 * quote.getCarType() + " are unavailable from " + quote.getStartDate() + " to "
-		 * + quote.getEndDate()); } Car car = availableCars.get((int) (Math.random() *
-		 * availableCars.size()));
-		 * 
-		 * Reservation res = new Reservation(quote, car.getId());
-		 * car.addReservation(res); return res;
-		 */
-		return null;
 	}
 
 	public void cancelReservation(Reservation res) {

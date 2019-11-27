@@ -1,17 +1,17 @@
 package ds.gae;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import com.google.appengine.api.images.Composite;
-import com.google.cloud.Timestamp;
-import com.google.cloud.datastore.*;
+import com.google.cloud.datastore.Datastore;
+import com.google.cloud.datastore.DatastoreOptions;
+import com.google.cloud.datastore.Entity;
+import com.google.cloud.datastore.Key;
+import com.google.cloud.datastore.Query;
+import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 
@@ -23,10 +23,7 @@ import ds.gae.entities.Reservation;
 import ds.gae.entities.ReservationConstraints;
 
 public class CarRentalModel {
-
-	// FIXME use persistence instead
-//	public Map<String, CarRentalCompany> CRCS = new HashMap<String, CarRentalCompany>();
-
+	
 	private static Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
 	private static CarRentalModel instance;
@@ -38,10 +35,6 @@ public class CarRentalModel {
 		return instance;
 	}
 
-	private CarRentalModel() {
-		// Private constructor so we cannot create multiple
-	}
-
 	/**
 	 * Get the car types available in the given car rental company.
 	 *
@@ -50,8 +43,18 @@ public class CarRentalModel {
 	 *         car rental company.
 	 */
 	public Set<String> getCarTypesNames(String companyName) {
-		// FIXME add implementation
-		return null;
+		Key crcKey = datastore.newKeyFactory().setKind("CarRentalCompany").newKey(companyName);
+		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").setFilter(PropertyFilter.hasAncestor(crcKey)).build();
+		
+		QueryResults<Entity> queryResults = datastore.run(q);
+		
+		Set<String> results = new HashSet<>();
+		
+		queryResults.forEachRemaining(res ->{
+			results.add(CarType.parse(res).getName());
+		});
+		
+		return results;
 	}
 
 	/**
@@ -85,35 +88,11 @@ public class CarRentalModel {
 	 */
 	public Quote createQuote(String companyName, String renterName, ReservationConstraints constraints)
 			throws ReservationException {
-		System.out.println("CREATE QUOTE " + companyName + " " + renterName + " " + constraints);
-
-//		Key resKey = getDatastore().newKeyFactory().addAncestors(PathElement.of("Car", 80),
-//				PathElement.of("CarType", constraints.getCarType()), PathElement.of("CarRentalCompany", companyName))
-//				.setKind("Reservation").newKey(1);
-//
-//		Entity e = Entity.newBuilder(resKey)
-//				.set("id", 1)
-//				.set("name", renterName)
-//				.set("rentalCompany", companyName)
-//				.set("startDate", Timestamp.now())
-//				.set("endDate", Timestamp.now())
-//				.set("renter", renterName)
-//				.set("carType", constraints.getCarType())
-//				.set("rentalPrice", 50)
-//				.build();
-//
-//		getDatastore().put(e);
-//
-//		return null;
-
-		// NOT DONE
-
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("CarRentalCompany")
 				.setFilter(PropertyFilter.eq("name", companyName)).build();
 		QueryResults<Entity> results = getDatastore().run(query);
 
 		if (results.hasNext()) {
-			System.out.println("hasNext OK");
 			CarRentalCompany crc = CarRentalCompany.parse(results.next());
 			return crc.createQuote(constraints, renterName);
 		} else {
@@ -130,14 +109,12 @@ public class CarRentalModel {
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
 	public void confirmQuote(Quote quote) throws ReservationException {
-		// FIXME: use persistence instead
+		Datastore ds = getDatastore();
+		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
+		Entity crcEntity = ds.get(crcKey);
 
-		// hier ga de crc opvragen
-		// en bouwen
-		// crc object aangemaakt
-
-		// CarRentalCompany crc = CRCS.get(quote.getRentalCompany());
-		// crc.confirmQuote(quote);
+		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
+		crc.confirmQuote(quote);
 	}
 
 	/**
@@ -152,7 +129,7 @@ public class CarRentalModel {
 	public List<Reservation> confirmQuotes(List<Quote> quotes) throws ReservationException {
 		List<Reservation> result = new ArrayList<Reservation>();
 		for (Quote q : quotes) {
-			
+
 		}
 		return result;
 	}
@@ -164,17 +141,10 @@ public class CarRentalModel {
 	 * @return the list of reservations of the given car renter
 	 */
 	public List<Reservation> getReservations(String renter) {
-		// FIXME: use persistence instead
-		/*
-		 * List<Reservation> out = new ArrayList<Reservation>(); for (CarRentalCompany
-		 * crc : CRCS.values()) { for (Car c : crc.getCars()) { for (Reservation r :
-		 * c.getReservations()) { if (r.getRenter().equals(renter)) { out.add(r); } } }
-		 * } return out;
-		 */
 		List<Reservation> result = new ArrayList<Reservation>();
 
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Reservation")
-				.setFilter(PropertyFilter.eq("name", renter)).build();
+				.setFilter(PropertyFilter.eq("renter", renter)).build();
 		QueryResults<Entity> queryResults = getDatastore().run(query);
 
 		queryResults.forEachRemaining(res -> {

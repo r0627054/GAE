@@ -2,6 +2,8 @@ package ds.gae.servlets;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,6 +23,8 @@ import ds.gae.view.Tools;
 public class PersistTestServlet extends HttpServlet {
 
 	private static Logger logger = Logger.getLogger(PersistTestServlet.class.getName());
+	
+	private List<Quote> sessionQuotes = new ArrayList<>();
 
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -31,16 +35,19 @@ public class PersistTestServlet extends HttpServlet {
 
 		try {
 
-			if (CarRentalModel.get().getReservations(userName).size() == 0) {
+			if (CarRentalModel.get().getReservations(userName).size() < 5) {
 
 				ReservationConstraints c = new ReservationConstraints(Tools.DATE_FORMAT.parse("08.12.2019"),
-						Tools.DATE_FORMAT.parse("14.12.2019"), "Compact");
+						Tools.DATE_FORMAT.parse("14.12.2020"), "Compact");
 
 				System.out.println("Servlet creating quote...");
 				final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
+				
 				System.out.println("Servlet created quote. Confirming quote...");
-//				CarRentalModel.get().confirmQuote(q);
-//				System.out.println("Servlet confirmed quote!");
+				sessionQuotes.add(q);
+				
+				CarRentalModel.get().confirmQuote(q);
+				System.out.println("Servlet confirmed quote!");
 			}
 
 			resp.sendRedirect(JSPSite.PERSIST_TEST.url());

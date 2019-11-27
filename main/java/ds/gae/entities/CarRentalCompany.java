@@ -1,5 +1,6 @@
 package ds.gae.entities;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -62,8 +63,6 @@ public class CarRentalCompany {
 	}
 
 	public CarType getCarType(String carTypeName) {
-		System.out.println("CRC: getCarType " + carTypeName + " " + getName());
-
 		Datastore ds = CarRentalModel.getDatastore();
 //TODO check ancestor filter
 //CompositeFilter.and(
@@ -72,7 +71,7 @@ public class CarRentalCompany {
 				.setKind("CarType").newKey(carTypeName);
 
 		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType")
-				.setFilter(PropertyFilter.gt("__key__", carTypeKey)).build();
+				.setFilter(PropertyFilter.eq("__key__", carTypeKey)).build();
 		QueryResults<Entity> results = ds.run(q);
 
 		if (results.hasNext()) {
@@ -102,11 +101,15 @@ public class CarRentalCompany {
 		Set<CarType> result = new HashSet<>();
 
 		// TODO DatastoreException: Only one inequality filter per query is supported.
-		Query<Entity> q = Query.newEntityQueryBuilder().setKind("CarType").build();
-		QueryResults<Entity> queryResults = ds.run(q);
+		Query<Entity> qTypes = Query.newEntityQueryBuilder().setKind("CarType").build();
+		QueryResults<Entity> queryCarTypeResults = ds.run(qTypes);
 
-		queryResults.forEachRemaining(res -> {
+		queryCarTypeResults.forEachRemaining(res -> {
 			result.add(CarType.parse(res));
+
+//			Query<Entity> q = Query.newEntityQueryBuilder().setKind("Reservation").setFilter(filter).build();
+//			QueryResults<Entity> queryResults = ds.run(q);
+
 		});
 
 		return result;
@@ -157,17 +160,56 @@ public class CarRentalCompany {
 
 		CarType type = getCarType(constraints.getCarType());
 
-		System.out.println("TYPE FOUND: " + type.getName());
-		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
-			System.out.println("not available");
-			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
-		}
-		System.out.println("is available");
+//		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
+//			System.out.println("not available");
+//			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
+//		}
+//		System.out.println("is available"); TODO
 
 		double price = calculateRentalPrice(type.getRentalPricePerDay(), constraints.getStartDate(),
 				constraints.getEndDate());
 		return new Quote(client, constraints.getStartDate(), constraints.getEndDate(), getName(),
 				constraints.getCarType(), price);
+	}
+
+	public Reservation confirmQuote(Quote quote) throws ReservationException {
+		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[] { name, quote.toString() });
+
+		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
+
+		if (availableCars.size() == 0) {
+			throw new ReservationException("Reservation failed, all cars of type " + quote.getCarType()
+					+ " are unavailable from " + quote.getStartDate() + " to " + quote.getEndDate());
+		}
+
+		Car car = availableCars.get((int) (Math.random() * availableCars.size()));
+
+		Reservation res = new Reservation(quote, car.getId());
+		car.addReservation(res);
+		return res;
+	}
+
+	private List<Car> getAvailableCars(String carType, Date start, Date end) {
+		List<Car> result = new ArrayList<Car>();
+		Datastore ds = CarRentalModel.getDatastore();
+
+		Key carTypeKey = ds.newKeyFactory().setKind("CarType").newKey(carType);
+
+		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Car")
+				.setFilter(
+						CompositeFilter.and(PropertyFilter.hasAncestor(carTypeKey), PropertyFilter.eq("carRentalCompanyName", getName())))
+				.build();
+
+		QueryResults<Entity> queryResults = ds.run(query);
+
+		queryResults.forEachRemaining(res -> {
+			Car car = Car.parse(res);
+			if (car.isAvailable(start, end)) {
+				result.add(car);
+			}
+		});
+		return result;
+
 	}
 
 	// Implementation can be subject to different pricing strategies

@@ -64,7 +64,7 @@ public class Reservation extends Quote {
 	public static Reservation parse(Entity res) {
 		return new Reservation(new Quote(res.getString("renter"), res.getTimestamp("endDate").toDate(),
 				res.getTimestamp("startDate").toDate(), res.getString("rentalCompany"), res.getString("carType"),
-				res.getLong("rentalPrice")), res.getKey().getId().intValue());
+				res.getDouble("rentalPrice")), res.getKey().getId().intValue());
 	}
 	// private Date startDate;
 //	private Date endDate;

@@ -95,15 +95,6 @@ public class CarType {
 		return null;
 	}
 
-	private List<Car> getAvailableCars(String carType, Date start, Date end) {
-		/*
-		 * List<Car> availableCars = new LinkedList<Car>(); for (Car car : cars) { if
-		 * (car.getType().getName().equals(carType) && car.isAvailable(start, end)) {
-		 * availableCars.add(car); } } return availableCars;
-		 */
-		return null;
-	}
-
 	public static CarType parse(Entity e) {
 		return new CarType(e.getKey().getName(), (int) Math.round(e.getLong("nbOfSeats")),
 				(float) e.getDouble("trunkSpace"), e.getDouble("rentalPricePerDay"), e.getBoolean("smokingAllowed"));
