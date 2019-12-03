@@ -11,7 +11,10 @@
 	<h2>Reply</h2>
 	<div class="group">
 		<p>
-			An email has been sent to <%=renterEmail%>.
+			An email has been sent to <%=renterEmail%> with confirmation on receiving the request.
+		</p>
+		<p>
+			You will be noticed when the reservations are confirmed.
 		</p>
 	</div>
 </div>

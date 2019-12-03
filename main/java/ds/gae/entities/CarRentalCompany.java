@@ -19,7 +19,6 @@ import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 
-import ds.gae.CarRentalModel;
 import ds.gae.DataStoreManager;
 import ds.gae.ReservationException;
 

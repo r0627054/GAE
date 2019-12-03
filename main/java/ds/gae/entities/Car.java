@@ -14,7 +14,6 @@ import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 
-import ds.gae.CarRentalModel;
 import ds.gae.DataStoreManager;
 
 public class Car {

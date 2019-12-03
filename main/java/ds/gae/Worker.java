@@ -1,12 +1,7 @@
 package ds.gae;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
-import java.io.ObjectOutputStream;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -29,28 +24,42 @@ public class Worker extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		PayloadWrapper wrapper = null;
 		ObjectInputStream inputStream = new ObjectInputStream(req.getInputStream());
-		
+
 		try {
 			wrapper = (PayloadWrapper) inputStream.readObject();
 
-			MailSender.sendMail(wrapper.getName(), wrapper.getEmail(), "subj", "content");
-			confirmQuotes(wrapper.getQuotes());
-			
+
+			if (wrapper.getQuotes().size() == 1) {
+				confirmSingleQuote(wrapper.getQuotes().get(0));
+			} else {
+				confirmQuotes(wrapper.getQuotes());
+			}
+
 		} catch (ClassNotFoundException | ReservationException e) {
+			MailSender.sendFailedMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes());
 			e.printStackTrace();
+
 		} finally {
 
 			try {
-				if (inputStream != null) {
+				if (inputStream != null)
 					inputStream.close();
-				}
-				
-				MailSender.sendMail(wrapper.getName(), wrapper.getEmail(), "subjDONE", "content");
-				
+
+				MailSender.sendDoneMail(wrapper.getName(), wrapper.getEmail());
+
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
+
+		}
+	}
+
+	private void confirmSingleQuote(Quote quote) {
+
+		try {
 			
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
@@ -66,6 +75,7 @@ public class Worker extends HttpServlet {
 		} finally {
 			if (tx.isActive()) {
 				tx.rollback();
+
 				throw new ReservationException("Error confirming quotes. All reservations are rolled back.");
 			}
 

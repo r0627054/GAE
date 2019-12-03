@@ -32,7 +32,7 @@ public class PersistTestServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String companyName = "Hertz";
 		String userName = "Pieter A.";
-
+		String email = userName.replace(" ", "").replace(".", "") + "@gmail.com";
 		req.getSession().setAttribute("renter", userName);
 
 		try {
@@ -44,7 +44,7 @@ public class PersistTestServlet extends HttpServlet {
 
 				final Quote q = CarRentalModel.get().createQuote(companyName, userName, c);
 				addToMap(userName, q);
-				CarRentalModel.get().confirmQuote(q);
+				CarRentalModel.get().confirmQuote(q, userName, email);
 			}
 
 			resp.sendRedirect(JSPSite.PERSIST_TEST.url());

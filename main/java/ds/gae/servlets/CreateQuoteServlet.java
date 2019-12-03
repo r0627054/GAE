@@ -17,8 +17,8 @@ import ds.gae.CarRentalModel;
 import ds.gae.ReservationException;
 import ds.gae.entities.Quote;
 import ds.gae.entities.ReservationConstraints;
-import ds.gae.view.Tools;
 import ds.gae.view.JSPSite;
+import ds.gae.view.Tools;
 
 @SuppressWarnings("serial")
 public class CreateQuoteServlet extends HttpServlet {

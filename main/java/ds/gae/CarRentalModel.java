@@ -20,7 +20,6 @@ import com.google.cloud.datastore.Query;
 import com.google.cloud.datastore.QueryResults;
 import com.google.cloud.datastore.StructuredQuery.CompositeFilter;
 import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
-import com.google.cloud.datastore.Transaction;
 
 import ds.gae.entities.Car;
 import ds.gae.entities.CarRentalCompany;
@@ -117,23 +116,44 @@ public class CarRentalModel {
 	 * 
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
-	public Reservation confirmQuote(Quote quote) throws ReservationException {
-		Transaction tx = getDatastore().newTransaction();
+	public void confirmQuote(Quote quote, String name, String emailAdress) throws ReservationException {
+		/*
+		 * Transaction tx = getDatastore().newTransaction(); try { Datastore ds =
+		 * getDatastore(); Key crcKey =
+		 * ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany(
+		 * )); Entity crcEntity = ds.get(crcKey);
+		 * 
+		 * CarRentalCompany crc = CarRentalCompany.parse(crcEntity); return
+		 * crc.confirmQuote(quote, tx);
+		 * 
+		 * } finally { if (tx.isActive()) { tx.rollback(); throw new
+		 * ReservationException("Error confirming quotes. All reservations are rolled back."
+		 * ); } }
+		 */
+		List<Quote> singleQuoteList = new ArrayList<>();
+		singleQuoteList.add(quote);
+
+		MailSender.sendInQueueMail(name, emailAdress);
+
+		PayloadWrapper wrapper = new PayloadWrapper(singleQuoteList, name, emailAdress);
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutput objectOut = null;
+		byte[] bytes = {};
 		try {
-			Datastore ds = getDatastore();
-			Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
-			Entity crcEntity = ds.get(crcKey);
-
-			CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
-			return crc.confirmQuote(quote, tx);
-
+			objectOut = new ObjectOutputStream(outputStream);
+			objectOut.writeObject(wrapper);
+			objectOut.flush();
+			bytes = outputStream.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-				throw new ReservationException("Error confirming quotes. All reservations are rolled back.");
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
 		}
-
+		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
 	}
 
 	/**
@@ -146,8 +166,9 @@ public class CarRentalModel {
 	 *                              none of the given quotes is confirmed.
 	 */
 	public void confirmQuotes(List<Quote> quotes, String name, String emailAdress) throws ReservationException {
-		PayloadWrapper wrapper = new PayloadWrapper(quotes, name, emailAdress);
+		MailSender.sendInQueueMail(name, emailAdress);
 
+		PayloadWrapper wrapper = new PayloadWrapper(quotes, name, emailAdress);
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutput objectOut = null;
 		byte[] bytes = {};

@@ -13,3 +13,9 @@ cd  "C:\Users\Steven\AppData\Local\Google\Cloud SDK"
 
 gcloud beta emulators datastore start --host-port 127.0.0.1:8081 --project distributed-systems-gae --no-store-on-disk
 ```
+TODO:
+
+fix TODO's
+single quote confirmation -> transaction nodig?
+isAvailable check confirmQuotes
+feedback
