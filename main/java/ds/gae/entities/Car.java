@@ -15,6 +15,7 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 
 import ds.gae.CarRentalModel;
+import ds.gae.DataStoreManager;
 
 public class Car {
 
@@ -52,7 +53,7 @@ public class Car {
 		if (!start.before(end)) {
 			throw new IllegalArgumentException("Illegal given period");
 		}
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 
 		Key carKey = ds.newKeyFactory().setKind("Car").newKey(getId());
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("Reservation")
@@ -72,7 +73,7 @@ public class Car {
 	}
 
 	public Reservation addReservation(Quote quote, int carId, Transaction tx) {
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 
 		Key resKey = ds.allocateId(ds.newKeyFactory()
 				.addAncestors(PathElement.of("CarRentalCompany", quote.getRentalCompany()),
@@ -85,12 +86,11 @@ public class Car {
 				.set("rentalPrice", quote.getRentalPrice()).build();
 
 		tx.put(carEntity);
-		tx.commit();
 		return new Reservation(resKey.getId(), quote, carId);
 	}
 
 	public void removeReservation(Reservation res) {
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 
 		Key key = ds.newKeyFactory().setKind("Reservation").newKey(res.getReservationId());
 		ds.delete(key);

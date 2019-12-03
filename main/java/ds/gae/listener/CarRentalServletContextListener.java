@@ -16,10 +16,11 @@ import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.PathElement;
 
 import ds.gae.CarRentalModel;
+import ds.gae.DataStoreManager;
 
 public class CarRentalServletContextListener implements ServletContextListener {
 
-	private Datastore datastore = CarRentalModel.getDatastore();
+	private Datastore datastore = DataStoreManager.getDataStore();
 
 	private int carCounter = 0;
 

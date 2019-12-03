@@ -15,6 +15,7 @@ public class LoginServlet extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		String username = req.getParameter("username");
+		
 		if (username == null || username.length() == 0) {
 			resp.sendRedirect(JSPSite.LOGIN.url());
 		} else {

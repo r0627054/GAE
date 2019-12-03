@@ -1,13 +1,19 @@
 package ds.gae;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.cloud.datastore.Datastore;
-import com.google.cloud.datastore.DatastoreOptions;
 import com.google.cloud.datastore.Entity;
 import com.google.cloud.datastore.Key;
 import com.google.cloud.datastore.Query;
@@ -25,7 +31,7 @@ import ds.gae.entities.ReservationConstraints;
 
 public class CarRentalModel {
 
-	private static Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
+	private Queue queue = QueueFactory.getQueue("distri-queue");
 
 	private static CarRentalModel instance;
 
@@ -131,27 +137,6 @@ public class CarRentalModel {
 	}
 
 	/**
-	 * Confirm the given quote.
-	 *
-	 * @param quote Quote to confirm
-	 * @param tx    Transaction to use
-	 * @return the Reservation that is created
-	 * 
-	 * @throws ReservationException Confirmation of given quote failed.
-	 */
-	public Reservation confirmQuoteWithTransaction(Quote quote, Transaction tx) throws ReservationException {
-		if (tx == null) {
-			tx = getDatastore().newTransaction();
-		}
-		Datastore ds = getDatastore();
-		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
-		Entity crcEntity = ds.get(crcKey);
-
-		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
-		return crc.confirmQuote(quote, tx);
-	}
-
-	/**
 	 * Confirm the given list of quotes
 	 * 
 	 * @param quotes the quotes to confirm
@@ -160,24 +145,27 @@ public class CarRentalModel {
 	 * @throws ReservationException One of the quotes cannot be confirmed. Therefore
 	 *                              none of the given quotes is confirmed.
 	 */
-	public List<Reservation> confirmQuotes(List<Quote> quotes) throws ReservationException {
-		List<Reservation> result = new ArrayList<Reservation>();
-		Transaction tx = getDatastore().newTransaction();
+	public void confirmQuotes(List<Quote> quotes, String name, String emailAdress) throws ReservationException {
+		PayloadWrapper wrapper = new PayloadWrapper(quotes, name, emailAdress);
 
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutput objectOut = null;
+		byte[] bytes = {};
 		try {
-			for (Quote q : quotes) {
-				result.add(confirmQuoteWithTransaction(q, tx));
-			}
-			return result;
-
+			objectOut = new ObjectOutputStream(outputStream);
+			objectOut.writeObject(wrapper);
+			objectOut.flush();
+			bytes = outputStream.toByteArray();
+		} catch (IOException e) {
+			e.printStackTrace();
 		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-				throw new ReservationException("Error confirming quotes. All reservations are rolled back.");
+			try {
+				outputStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
 		}
-
+		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
 	}
 
 	/**
@@ -256,7 +244,7 @@ public class CarRentalModel {
 	 */
 	private List<Car> getCarsByCarType(String companyName, CarType carType) {
 		List<Car> result = new ArrayList<>();
-		
+
 		Query<Entity> q = Query.newEntityQueryBuilder().setKind("Car")
 				.setFilter(
 						CompositeFilter.and(PropertyFilter.eq("carRentalCompanyName", companyName),
@@ -285,7 +273,12 @@ public class CarRentalModel {
 		return this.getReservations(renter).size() > 0;
 	}
 
-	public static Datastore getDatastore() {
-		return datastore;
+	private Datastore getDatastore() {
+		return DataStoreManager.getDataStore();
 	}
+
+	public Queue getQueue() {
+		return queue;
+	}
+
 }

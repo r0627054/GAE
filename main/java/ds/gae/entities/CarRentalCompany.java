@@ -20,6 +20,7 @@ import com.google.cloud.datastore.StructuredQuery.PropertyFilter;
 import com.google.cloud.datastore.Transaction;
 
 import ds.gae.CarRentalModel;
+import ds.gae.DataStoreManager;
 import ds.gae.ReservationException;
 
 public class CarRentalCompany {
@@ -58,7 +59,7 @@ public class CarRentalCompany {
 	}
 
 	public CarType getCarType(String carTypeName) {
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 		Key carTypeKey = ds.newKeyFactory().addAncestors(PathElement.of("CarRentalCompany", getName()))
 				.setKind("CarType").newKey(carTypeName);
 
@@ -79,7 +80,7 @@ public class CarRentalCompany {
 	}
 
 	public Set<CarType> getAvailableCarTypes(Date start, Date end) {
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 		Set<CarType> result = new HashSet<>();
 
 		// Get all CarTypes of company
@@ -152,7 +153,7 @@ public class CarRentalCompany {
 	
 	private List<Car> getAvailableCars(String carType, Date start, Date end) {
 		List<Car> result = new ArrayList<Car>();
-		Datastore ds = CarRentalModel.getDatastore();
+		Datastore ds = DataStoreManager.getDataStore();
 
 		Key carTypeKey = ds.newKeyFactory().setKind("CarType").newKey(carType);
 

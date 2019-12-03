@@ -3,7 +3,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <% session.setAttribute("currentPage", JSPSite.CONFIRM_QUOTES_RESPONSE); %>
-<% String renter = (String) session.getAttribute("renter"); %>
+<% String renterEmail = (String) session.getAttribute("renterEmail"); %>
 
 <%@include file="_header.jsp"%>
 
@@ -11,8 +11,7 @@
 	<h2>Reply</h2>
 	<div class="group">
 		<p>
-			TODO: Here you can give some information to client who is currently 
-			logged in as user <%=renter%>.
+			An email has been sent to <%=renterEmail%>.
 		</p>
 	</div>
 </div>
