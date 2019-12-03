@@ -96,7 +96,7 @@ public class CarRentalModel {
 	public Quote createQuote(String companyName, String renterName, ReservationConstraints constraints)
 			throws ReservationException {
 		Query<Entity> query = Query.newEntityQueryBuilder().setKind("CarRentalCompany")
-				.setFilter(PropertyFilter.eq("name", companyName)).build();// TODO
+				.setFilter(PropertyFilter.eq("name", companyName)).build();
 		QueryResults<Entity> results = getDatastore().run(query);
 
 		if (results.hasNext()) {
@@ -117,43 +117,10 @@ public class CarRentalModel {
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
 	public void confirmQuote(Quote quote, String name, String emailAdress) throws ReservationException {
-		/*
-		 * Transaction tx = getDatastore().newTransaction(); try { Datastore ds =
-		 * getDatastore(); Key crcKey =
-		 * ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany(
-		 * )); Entity crcEntity = ds.get(crcKey);
-		 * 
-		 * CarRentalCompany crc = CarRentalCompany.parse(crcEntity); return
-		 * crc.confirmQuote(quote, tx);
-		 * 
-		 * } finally { if (tx.isActive()) { tx.rollback(); throw new
-		 * ReservationException("Error confirming quotes. All reservations are rolled back."
-		 * ); } }
-		 */
 		List<Quote> singleQuoteList = new ArrayList<>();
 		singleQuoteList.add(quote);
 
-		MailSender.sendInQueueMail(name, emailAdress);
-
-		PayloadWrapper wrapper = new PayloadWrapper(singleQuoteList, name, emailAdress);
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		ObjectOutput objectOut = null;
-		byte[] bytes = {};
-		try {
-			objectOut = new ObjectOutputStream(outputStream);
-			objectOut.writeObject(wrapper);
-			objectOut.flush();
-			bytes = outputStream.toByteArray();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				outputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
+		createWorkerWithPayload(new PayloadWrapper(singleQuoteList, name, emailAdress));
 	}
 
 	/**
@@ -166,9 +133,10 @@ public class CarRentalModel {
 	 *                              none of the given quotes is confirmed.
 	 */
 	public void confirmQuotes(List<Quote> quotes, String name, String emailAdress) throws ReservationException {
-		MailSender.sendInQueueMail(name, emailAdress);
+		createWorkerWithPayload(new PayloadWrapper(quotes, name, emailAdress));
+	}
 
-		PayloadWrapper wrapper = new PayloadWrapper(quotes, name, emailAdress);
+	private void createWorkerWithPayload(PayloadWrapper wrapper) {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutput objectOut = null;
 		byte[] bytes = {};
@@ -187,6 +155,7 @@ public class CarRentalModel {
 			}
 		}
 		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
+		MailSender.sendInQueueMail(wrapper.getName(), wrapper.getEmail());
 	}
 
 	/**

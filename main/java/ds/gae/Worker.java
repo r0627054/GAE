@@ -28,38 +28,27 @@ public class Worker extends HttpServlet {
 		try {
 			wrapper = (PayloadWrapper) inputStream.readObject();
 
-
 			if (wrapper.getQuotes().size() == 1) {
-				confirmSingleQuote(wrapper.getQuotes().get(0));
+				confirmSingleQuoteWithNoTransaction(wrapper.getQuotes().get(0));
 			} else {
 				confirmQuotes(wrapper.getQuotes());
 			}
-
+			MailSender.sendDoneMail(wrapper.getName(), wrapper.getEmail());
 		} catch (ClassNotFoundException | ReservationException e) {
 			MailSender.sendFailedMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes());
+			
 			e.printStackTrace();
 
 		} finally {
-
 			try {
-				if (inputStream != null)
+				if (inputStream != null) {
 					inputStream.close();
-
-				MailSender.sendDoneMail(wrapper.getName(), wrapper.getEmail());
+				}
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
 
-		}
-	}
-
-	private void confirmSingleQuote(Quote quote) {
-
-		try {
-			
-		} catch (Exception e) {
-			// TODO: handle exception
 		}
 	}
 
@@ -102,6 +91,15 @@ public class Worker extends HttpServlet {
 
 		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
 		crc.confirmQuote(quote, tx);
+	}
+
+	private void confirmSingleQuoteWithNoTransaction(Quote quote) throws ReservationException {
+		Datastore ds = getDatastore();
+		Key crcKey = ds.newKeyFactory().setKind("CarRentalCompany").newKey(quote.getRentalCompany());
+		Entity crcEntity = ds.get(crcKey);
+
+		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
+		crc.confirmQuote(quote, null);
 	}
 
 	// Getters & Setters

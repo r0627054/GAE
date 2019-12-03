@@ -3,6 +3,7 @@ package ds.gae.entities;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -101,9 +102,10 @@ public class CarRentalCompany {
 
 			// If the car is available, add the TYPE to the result.
 			queryCarResults.forEachRemaining(carRes -> {
-				if (Car.parse(carRes).isAvailable(start, end)) {
+
+				if (Car.parse(carRes).isAvailable(start, end, res.getKey().getName())) {
 					result.add(CarType.parse(res));
-				} // Result is set, so no duplicates
+				}
 			});
 
 		});
@@ -121,7 +123,7 @@ public class CarRentalCompany {
 		if (!isAvailable(constraints.getCarType(), constraints.getStartDate(), constraints.getEndDate())) {
 			throw new ReservationException("<" + name + "> No cars available to satisfy the given constraints.");
 		}
-		
+
 		CarType type = getCarType(constraints.getCarType());
 
 		double price = calculateRentalPrice(type.getRentalPricePerDay(), constraints.getStartDate(),
@@ -130,7 +132,7 @@ public class CarRentalCompany {
 				constraints.getCarType(), price);
 	}
 
-	public Reservation confirmQuote(Quote quote, Transaction tx) throws ReservationException {
+	public void confirmQuote(Quote quote, Transaction tx) throws ReservationException {
 		logger.log(Level.INFO, "<{0}> Reservation of {1}", new Object[] { name, quote.toString() });
 
 		List<Car> availableCars = getAvailableCars(quote.getCarType(), quote.getStartDate(), quote.getEndDate());
@@ -142,14 +144,13 @@ public class CarRentalCompany {
 
 		Car car = availableCars.get((int) (Math.random() * availableCars.size()));
 
-		Reservation res = car.addReservation(quote, car.getId(), tx);
-		return res;
+		car.addReservation(quote, car.getId(), tx);
 	}
 
 	/*********
 	 * CARS *
 	 *********/
-	
+
 	private List<Car> getAvailableCars(String carType, Date start, Date end) {
 		List<Car> result = new ArrayList<Car>();
 		Datastore ds = DataStoreManager.getDataStore();
@@ -164,7 +165,7 @@ public class CarRentalCompany {
 
 		queryResults.forEachRemaining(res -> {
 			Car car = Car.parse(res);
-			if (car.isAvailable(start, end)) {
+			if (car.isAvailable(start, end, carType)) {
 				result.add(car);
 			}
 		});

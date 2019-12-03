@@ -20,8 +20,6 @@ import ds.gae.DataStoreManager;
 
 public class CarRentalServletContextListener implements ServletContextListener {
 
-	private Datastore datastore = DataStoreManager.getDataStore();
-
 	private int carCounter = 0;
 
 	@Override
@@ -73,7 +71,6 @@ public class CarRentalServletContextListener implements ServletContextListener {
 	}
 
 	public void loadData(String name, String datafile) throws NumberFormatException, IOException {
-		int carId = 1;
 		// open file from jar
 		BufferedReader in = new BufferedReader(new InputStreamReader(
 				CarRentalServletContextListener.class.getClassLoader().getResourceAsStream(datafile)));
@@ -120,7 +117,7 @@ public class CarRentalServletContextListener implements ServletContextListener {
 	}
 
 	public Datastore getDatastore() {
-		return datastore;
+		return DataStoreManager.getDataStore();
 	}
 
 }
