@@ -10,6 +10,8 @@
 	\maketitle
 
 	\paragraph{1. Which hosts/systems execute which processes, i.e. how are the remote objects distributed over hosts, if run in a real deployment on the App Engine platform (not a lab deployment where everything runs on the same machine)? Clearly outline which parts belong to the front- and backend. Create a component/deployment diagram to illustrate this: highlight where the client and server are.} \mbox{}\\\\
+Figure \ref{fig:deployment_diagram} shows the deployment diagram of the application. This diagram shows how the different classes can be deployed in a real distributed deployment.
+
 
 
 	
@@ -44,8 +46,13 @@
 
 	\paragraph{9. What is the most critical difference between confirmQuote and confirmQuotes from the viewpoint of transaction management? Explain an alternative to your solution for the all-or-nothing semantics of confirmQuotes which is essentially different from the viewpoint of transaction management. Given the underlying distributed storage layer, what are the implications of each solution for performance and data consistency?} \mbox{}\\\\
 	
-	
-	
+		\clearpage
+
+\begin{figure}
+  \includegraphics[width=\linewidth]{GAE_opdracht_2_deployment.png}
+  \caption{Deployment diagram}
+  \label{fig:deployment_diagram}
+\end{figure}	
 
 	
 	\clearpage
