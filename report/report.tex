@@ -16,9 +16,12 @@ Figure \ref{fig:deployment_diagram} shows the deployment diagram of the applicat
 
 	
 	\paragraph{2. At which step of the workflow for booking a car reservation (create quote, collect quotes, confirm quotes) would the indirect communication between objects or components kick in? Describe the steps that cause the indirect communication, and what happens afterwards.} \mbox{}\\\\
+The indirect communication takes place at the 'confirm quotes' step in our application. The actual confirmation and creation of the reservations is the most demanding process. This part is the bottleneck activity of the application. By decoupling this part of the application, it allows the  back-end to introduce an additional delay for the processing. The front-end will achieve better availability and performance because it does not have to wait for the actual creation of the reservations. The CarRentalModel, which contains the confirmQuotes method, will push a task to the task queue service. The task queue service will then send a http post request to the worker with the worker url and the serialized parameters. The worker will execute the task. In this case it tries to create reservations for all the quotes, making use of a transaction.
 
 
 	\paragraph{3. Which kind of data is passed between the front- and back-end? Does it make sense to persist data and only pass references to that data?} \mbox{}\\\\
+Instances of the 'PayloadWrapper' class are passed between the front- and back-end. This class has a list of quotes, the name of the renter and the email of the renter. The confirmQuotes method in the CarRentalModel class will create an instance of the PayloadWrapper class. This instance will be serialized to a byte array and given to a TaskOptions object. This TaskOptions object will be pushed to a queue and the worker will execute the task.
+
 
 
 
