@@ -4,6 +4,7 @@
 
 <% session.setAttribute("currentPage", JSPSite.CONFIRM_QUOTES_RESPONSE); %>
 <% String renterEmail = (String) session.getAttribute("renterEmail"); %>
+<% String orderId = (String) session.getAttribute("orderId"); %>
 
 <%@include file="_header.jsp"%>
 
@@ -11,10 +12,10 @@
 	<h2>Reply</h2>
 	<div class="group">
 		<p>
-			An email has been sent to <%=renterEmail%> with confirmation on receiving the request.
+			ORDER ID: <%=orderId%>
 		</p>
 		<p>
-			You will be noticed when the reservations are confirmed.
+			An email will be sent to <%=renterEmail%> with confirmation of the reservation.
 		</p>
 	</div>
 </div>

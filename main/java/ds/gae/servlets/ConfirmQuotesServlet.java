@@ -3,6 +3,7 @@ package ds.gae.servlets;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -36,10 +37,11 @@ public class ConfirmQuotesServlet extends HttpServlet {
 			for (String crcName : allQuotes.keySet()) {
 				qs.addAll(allQuotes.get(crcName));
 			}
-			CarRentalModel.get().confirmQuotes(qs, renter, mail);
+			UUID orderId = CarRentalModel.get().confirmQuotes(qs, renter, mail);
 
 			session.setAttribute("quotes", new HashMap<String, ArrayList<Quote>>());
 			session.setAttribute("renterEmail", mail);
+			session.setAttribute("orderId", orderId.toString());
 
 			// resp.sendRedirect(JSPSite.CREATE_QUOTES.url());
 			resp.sendRedirect(JSPSite.CONFIRM_QUOTES_RESPONSE.url());

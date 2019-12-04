@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
 import java.util.Properties;
+import java.util.UUID;
 
 import javax.mail.Message;
 import javax.mail.Session;
@@ -40,10 +41,10 @@ public class Worker extends HttpServlet {
 			} else {
 				confirmQuotes(wrapper.getQuotes());
 			}
-			
-			sendDoneMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes());
+
+			sendDoneMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes(), wrapper.getOrderId());
 		} catch (ClassNotFoundException | ReservationException e) {
-			sendFailedMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes());
+			sendFailedMail(wrapper.getName(), wrapper.getEmail(), wrapper.getQuotes(), wrapper.getOrderId());
 
 			e.printStackTrace();
 
@@ -59,10 +60,10 @@ public class Worker extends HttpServlet {
 
 		}
 	}
-	
+
 	/**************************************************
-	/*              RESERVATIONS                      *
-	/**************************************************/
+	 * /* RESERVATIONS * /
+	 **************************************************/
 
 	private void confirmQuotes(List<Quote> quotes) throws ReservationException {
 		Transaction tx = getDatastore().newTransaction();
@@ -113,11 +114,11 @@ public class Worker extends HttpServlet {
 		CarRentalCompany crc = CarRentalCompany.parse(crcEntity);
 		crc.confirmQuote(quote, null);
 	}
-	
+
 	/**************************************************
-	/*              MAILS                             *
-	/**************************************************/
-	
+	 * /* MAILS * /
+	 **************************************************/
+
 	public static void sendMail(String receiverName, String receiverMail, String subject, String content) {
 		Session session = Session.getDefaultInstance(new Properties(), null);
 
@@ -129,38 +130,37 @@ public class Worker extends HttpServlet {
 			msg.setText(content);
 
 			Transport.send(msg);
-			System.out.println("MailSender send mail: " + msg.getContent().toString()); //TODO Remove this
+			System.out.println("MailSender send mail: " + msg.getContent().toString()); // TODO Remove this
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 	}
 
-	public static void sendDoneMail(String receiverName, String receiverMail, List<Quote> list) {
-		String content = "Dear " + receiverName
-				+ ",\nThe quotes you have created are now confirmed.\nThe quotes are:\n";
+	public static void sendDoneMail(String receiverName, String receiverMail, List<Quote> list, UUID uuid) {
+		String content = "Dear " + receiverName + ",\nThe quotes (order id: " + uuid.toString()
+				+ ") you have created are now confirmed.\nThe quotes are:\n";
 		for (Quote q : list) {
 			content += q.toString() + "\n";
 		}
 		sendMail(receiverName, receiverMail, "The reservations have been confirmed.", content);
 	}
 
-	public static void sendFailedMail(String receiverName, String receiverMail, List<Quote> quotes) {
-		String content = "Dear " + receiverName
-				+ ",\nThe quotes you have created cannot be confirmed.\nThese quotes are:\n";
+	public static void sendFailedMail(String receiverName, String receiverMail, List<Quote> quotes, UUID uuid) {
+		String content = "Dear " + receiverName + ",\nThe quotes (order id: " + uuid.toString()
+				+ ") you have created cannot be confirmed.\nThese quotes are:\n";
 		for (Quote q : quotes) {
 			content += q.toString() + "\n";
 		}
 		sendMail(receiverName, receiverMail, "The reservations have been cancelled!", content);
 	}
-	
 
 	/**************************************************
-	/*              DATASTORE                         *
-	/**************************************************/
-	
+	 * /* DATASTORE * /
+	 **************************************************/
+
 	// Since this worker will execute on a back-end server
-	// a new DataStore service has to be created, the one in 
+	// a new DataStore service has to be created, the one in
 	// DataStoreManager cannot be reused. This service needs
 	// to use the same datastore as the front-end.
 	// There is no shared memory front & back end

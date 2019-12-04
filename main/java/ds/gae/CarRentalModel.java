@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
@@ -116,11 +117,11 @@ public class CarRentalModel {
 	 * 
 	 * @throws ReservationException Confirmation of given quote failed.
 	 */
-	public void confirmQuote(Quote quote, String name, String emailAdress) throws ReservationException {
+	public UUID confirmQuote(Quote quote, String name, String emailAdress) throws ReservationException {
 		List<Quote> singleQuoteList = new ArrayList<>();
 		singleQuoteList.add(quote);
 
-		createWorkerWithPayload(new PayloadWrapper(singleQuoteList, name, emailAdress));
+		return createWorkerWithPayload(new PayloadWrapper(singleQuoteList, name, emailAdress));
 	}
 
 	/**
@@ -132,11 +133,11 @@ public class CarRentalModel {
 	 * @throws ReservationException One of the quotes cannot be confirmed. Therefore
 	 *                              none of the given quotes is confirmed.
 	 */
-	public void confirmQuotes(List<Quote> quotes, String name, String emailAdress) throws ReservationException {
-		createWorkerWithPayload(new PayloadWrapper(quotes, name, emailAdress));
+	public UUID confirmQuotes(List<Quote> quotes, String name, String emailAdress) throws ReservationException {
+		return createWorkerWithPayload(new PayloadWrapper(quotes, name, emailAdress));
 	}
 
-	private void createWorkerWithPayload(PayloadWrapper wrapper) {
+	private UUID createWorkerWithPayload(PayloadWrapper wrapper) {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		ObjectOutput objectOut = null;
 		byte[] bytes = {};
@@ -155,6 +156,7 @@ public class CarRentalModel {
 			}
 		}
 		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
+		return wrapper.getOrderId();
 	}
 
 	/**
