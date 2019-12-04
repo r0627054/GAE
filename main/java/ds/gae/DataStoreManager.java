@@ -7,6 +7,8 @@ public class DataStoreManager {
 
 	private static Datastore datastore = DatastoreOptions.getDefaultInstance().getService();
 
+	// All client-side classes use this getter to use the same
+	// datastore service.
 	public static Datastore getDataStore() {
 		return datastore;
 	}

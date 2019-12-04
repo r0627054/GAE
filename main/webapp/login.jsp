@@ -12,7 +12,7 @@
 	<form method="POST" action="/login">
 		<div class="group">
 			<div class="form">
-				<span>Username: <input type="text" name="username" value="TestUser" size="10"></span>
+				<span>Username: <input type="text" name="username" value="Pieter A." size="10"></span>
 			</div>
 			<div class="formsubmit">
 				<input type="submit" value="Login" />

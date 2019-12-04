@@ -155,7 +155,6 @@ public class CarRentalModel {
 			}
 		}
 		getQueue().add(TaskOptions.Builder.withUrl("/worker").payload(bytes));
-		MailSender.sendInQueueMail(wrapper.getName(), wrapper.getEmail());
 	}
 
 	/**
