@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.10.29)  3 DEC 2019 22:38
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017/Debian) (preloaded format=pdflatex 2019.10.29)  4 DEC 2019 21:25
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -547,103 +547,136 @@ Underfull \hbox (badness 10000) in paragraph at lines 18--20
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 22--23
+Underfull \hbox (badness 10000) in paragraph at lines 22--25
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 22--23
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 26--27
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 26--27
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--33
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 32--33
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 35--36
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 35--36
+Underfull \hbox (badness 10000) in paragraph at lines 22--25
 
  []
 
 [1
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \hbox (badness 10000) in paragraph at lines 40--41
+Underfull \hbox (badness 10000) in paragraph at lines 29--32
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 40--41
+Underfull \hbox (badness 10000) in paragraph at lines 29--32
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 45--46
+Underfull \hbox (badness 10000) in paragraph at lines 36--38
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 45--46
+Underfull \hbox (badness 10000) in paragraph at lines 39--40
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 48--49
+Underfull \hbox (badness 10000) in paragraph at lines 39--40
 
  []
 
 
-Underfull \hbox (badness 10000) in paragraph at lines 48--49
+Underfull \hbox (badness 10000) in paragraph at lines 41--43
 
  []
 
-[2]
-<GAE_opdracht_2_deployment.png, id=16, 706.8006pt x 328.1058pt>
+
+Underfull \hbox (badness 10000) in paragraph at lines 41--43
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 44--45
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--49
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 46--49
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--55
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 54--55
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 56--59
+
+ []
+
+[2
+
+]
+Underfull \hbox (badness 10000) in paragraph at lines 61--65
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 68--69
+
+ []
+
+[3]
+<GAE_opdracht_2_deployment.png, id=19, 746.5491pt x 323.7696pt>
 File: GAE_opdracht_2_deployment.png Graphic file (type png)
 <use GAE_opdracht_2_deployment.png>
-Package pdftex.def Info: GAE_opdracht_2_deployment.png  used on input line 53.
-(pdftex.def)             Requested size: 424.58624pt x 197.1003pt.
- [3 <./GAE_opdracht_2_deployment.png>] (./report.aux) ) 
+Package pdftex.def Info: GAE_opdracht_2_deployment.png  used on input line 78.
+(pdftex.def)             Requested size: 424.58624pt x 184.14055pt.
+<GAE_opdracht_2_structure.jpg, id=21, 737.75626pt x 583.17876pt>
+File: GAE_opdracht_2_structure.jpg Graphic file (type jpg)
+<use GAE_opdracht_2_structure.jpg>
+Package pdftex.def Info: GAE_opdracht_2_structure.jpg  used on input line 84.
+(pdftex.def)             Requested size: 424.58624pt x 335.61884pt.
+ [4 <./GAE_opdracht_2_deployment.png> <./GAE_opdracht_2_structure.jpg>]
+(./report.aux) ) 
 Here is how much of TeX's memory you used:
- 4314 strings out of 492982
- 65276 string characters out of 6134895
- 167921 words of memory out of 5000000
- 7805 multiletter control sequences out of 15000+600000
- 9503 words of font info for 31 fonts, out of 8000000 for 9000
+ 4353 strings out of 492982
+ 65790 string characters out of 6134895
+ 168929 words of memory out of 5000000
+ 7810 multiletter control sequences out of 15000+600000
+ 10431 words of font info for 47 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 41i,6n,40p,786b,228s stack positions out of 5000i,500n,10000p,200000b,80000s
-{/usr/share/texmf/fonts/
-enc/dvips/cm-super/cm-super-t1.enc}</usr/share/texmf/fonts/type1/public/cm-supe
-r/sfbx1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfcc1200.pfb></usr
-/share/texmf/fonts/type1/public/cm-super/sfrm1000.pfb></usr/share/texmf/fonts/t
-ype1/public/cm-super/sfrm1200.pfb></usr/share/texmf/fonts/type1/public/cm-super
-/sfrm2488.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfti1200.pfb></usr/
-share/texmf/fonts/type1/public/cm-super/sfti2488.pfb>
-Output written on report.pdf (3 pages, 207058 bytes).
+ 41i,6n,40p,863b,228s stack positions out of 5000i,500n,10000p,200000b,80000s
+{/usr/share/texmf/fonts/enc/dvips/cm-super/cm-super-t1.enc}</us
+r/share/texmf/fonts/type1/public/cm-super/sfbx1000.pfb></usr/share/texmf/fonts/
+type1/public/cm-super/sfcc1200.pfb></usr/share/texmf/fonts/type1/public/cm-supe
+r/sfrm1000.pfb></usr/share/texmf/fonts/type1/public/cm-super/sfrm1200.pfb></usr
+/share/texmf/fonts/type1/public/cm-super/sfrm2488.pfb></usr/share/texmf/fonts/t
+ype1/public/cm-super/sfti1200.pfb></usr/share/texmf/fonts/type1/public/cm-super
+/sfti2488.pfb>
+Output written on report.pdf (4 pages, 273102 bytes).
 PDF statistics:
- 46 PDF objects out of 1000 (max. 8388607)
- 31 compressed objects within 1 object stream
+ 50 PDF objects out of 1000 (max. 8388607)
+ 33 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 9734 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 9739 words of extra memory for PDF output out of 10000 (max. 10000000)
 

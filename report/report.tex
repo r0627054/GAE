@@ -20,20 +20,21 @@ The indirect communication takes place at the 'confirm quotes' step in our appli
 
 
 	\paragraph{3. Which kind of data is passed between the front- and back-end? Does it make sense to persist data and only pass references to that data?} \mbox{}\\\\
-Instances of the 'PayloadWrapper' class are passed between the front- and back-end. This class has a list of quotes, the name of the renter and the email of the renter. The confirmQuotes method in the CarRentalModel class will create an instance of the PayloadWrapper class. This instance will be serialized to a byte array and given to a TaskOptions object. This TaskOptions object will be pushed to a queue and the worker will execute the task.
-
+Instances of the 'PayloadWrapper' class are passed between the front- and back-end. This class has a list of quotes, the name of the renter and the email of the renter. The confirmQuotes method in the CarRentalModel class will create an instance of the PayloadWrapper class. This instance will be serialized to a byte array and given to a TaskOptions object. This TaskOptions object will be pushed to a queue and the worker will execute the task.\\\\
+In our solution we made use to pass this data by value. Passing this data by value requires network traffic for sending the data to the Worker servlet. It is possible to persist data and only pass the reference, but in this context it makes less sense. This will result in storing the content of the PayloadWrapper class in the database which will have to be done by the front-end. Because this is more work for the front-end, it will downgrade the user experience. A second disadvantage is that the worker to interact more with the database. This can result in lower performance.
+\clearpage
 
 
 
 	\paragraph{4. How have you implemented your backchannel? What triggers the backchannel to be used, how does the client use the backchannel and what information is sent?} \mbox{}\\\\
-We used an email service to let the customer know their reservation is in progress. When a client confirms a quote, the client-side will create a task in the queue and send an email to the customer with confirmation that the request is received. When the task has been executed, the worker will send another email to the customer. This could either be a succes or failure email, since there could be a conflict with the current reservations and the requested reservations at the point of execution. Either way, we supply the list of reservations in the second mail to make sure the customer has all the details.\mbox{}\\\\
+We used an email service to let the customer know if their reservations were made. When a client confirms a quote, the client-side will create a task in the queue and the user is redirected to another page which shows the message that the reservation is received by the server. When the task has been executed, the worker will send another email to the customer. This could either be a success or failure email, since there could be a conflict with the current reservations and the requested reservations at the point of execution. Either way, we supply the list of reservations in this mail to make sure the customer has all the details.\mbox{}\\\\
 We chose this kind of backchannel instead of a status message on the website, since we feel like a customer will never leave the website open for hours/days to track their progress.
 
 
 
 
 	\paragraph{5. How does your solution to indirect communication improve scalability?} \mbox{}\\\\
-Since the critical transactions are executed on a different servlet (which could run on a totally different server) and are simply called with an URL and a payload, the load on the client-side server is reduced. This way we can separate the load on servers, which improves scalability.
+Since the bottleneck transactions are executed on a different servlet (which could run on a totally different server) and are simply called with an URL and a payload, the load on the client-side server is reduced. This way we can separate the load on servers, which improves scalability.
 
 		\paragraph{6. Workers in GAE’s Task Queues are by default set to run in parallel. While parallelism is usually a desirable property of a cloud service, as it enables scalability and thus faster overall processing, it may also endanger the application’s state consistency. Assume a scenario in which two different clients try to confirm a couple of tentative reservations, i.e. their quotes are queued to be processed by the back end. Both include a tentative reservation for the last available car of a certain car type, so that, assuming correct behaviour of the car rental application, it should fail to confirm the quotes for one of them.} \mbox{}\\\\
 
