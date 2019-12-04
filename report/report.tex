@@ -46,7 +46,7 @@ Yes, there is a possible scenario. The most simple scenario is that the applicat
 \paragraph{(c) In case your solution to the previous question limits parallelism, would a different design of
 the indirect communication channels help to increase parallelism? For this question, you may
 assume that a client will have quotes belonging to one car rental company only.}\mbox{}\\\\
-
+A different design could be that we create a queue for each car rental company, with one worker on each queue. This will allow parallelism between companies so that we can process the `confirmQuotes' method of each company at the same time. Furthermore, the single worker guarantees that there is never a inconsistent state.
 
 
  
@@ -64,6 +64,8 @@ Not being able to join tables made the querying harder, for example, we needed t
 
 
 	\paragraph{9. What is the most critical difference between confirmQuote and confirmQuotes from the viewpoint of transaction management? Explain an alternative to your solution for the all-or-nothing semantics of confirmQuotes which is essentially different from the viewpoint of transaction management. Given the underlying distributed storage layer, what are the implications of each solution for performance and data consistency?} \mbox{}\\\\
+	The single `confirmQuote' does not need an implicit transaction, because when we try to confirm the quote, it will look for available cars. If there are no available cars found, the server will never create a Reservation. Thus we never need to cancel the transaction, since no data is stored in the store.
+	The multiple `confirmQuotes' does need a transaction for obvious reasons. If any of the reservations fail, all of them should revert and the data is never committed. \mbox{}\\\\
 	
 	
 	
