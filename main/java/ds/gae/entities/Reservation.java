@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import com.google.cloud.datastore.Entity;
 
+@SuppressWarnings("serial")
 public class Reservation extends Quote {
 
 	private int carId;

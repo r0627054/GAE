@@ -5,6 +5,7 @@ import java.util.List;
 
 import ds.gae.entities.Quote;
 
+@SuppressWarnings("serial")
 public class PayloadWrapper implements Serializable {
 
 	private List<Quote> quotes;
