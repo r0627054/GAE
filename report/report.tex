@@ -38,9 +38,16 @@ Since the critical transactions are executed on a different servlet (which could
 
 		\paragraph{6. Workers in GAE’s Task Queues are by default set to run in parallel. While parallelism is usually a desirable property of a cloud service, as it enables scalability and thus faster overall processing, it may also endanger the application’s state consistency. Assume a scenario in which two different clients try to confirm a couple of tentative reservations, i.e. their quotes are queued to be processed by the back end. Both include a tentative reservation for the last available car of a certain car type, so that, assuming correct behaviour of the car rental application, it should fail to confirm the quotes for one of them.} \mbox{}\\\\
 
-Is dit een vraag?
+(a) Is there a scenario in which the code to confirm the quotes is executed multiple times in parallel,
+resulting in a positive confirmation to both clients’ quotes?\mbox{}\\\\
 
-We hebben geen synchronisatie volgens mij? Dus die worker kan idd 2x dezelfde reservation maken met bad luck
+(b) If so, can you name and illustrate one (or more) possibilities to prevent this bogus behaviour?\mbox{}\\\\
+
+(c) In case your solution to the previous question limits parallelism, would a different design of
+the indirect communication channels help to increase parallelism? For this question, you may
+assume that a client will have quotes belonging to one car rental company only.\mbox{}\\\\
+
+
 
  
 
