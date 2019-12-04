@@ -2,7 +2,6 @@ package ds.gae.entities;
 
 import java.util.Date;
 import java.util.Set;
-import java.util.logging.Logger;
 
 import com.google.cloud.Timestamp;
 import com.google.cloud.datastore.Datastore;
@@ -17,8 +16,6 @@ import com.google.cloud.datastore.Transaction;
 import ds.gae.DataStoreManager;
 
 public class Car {
-
-	private static Logger logger = Logger.getLogger(Car.class.getName());
 
 	private int id;
 	private String carRentalCompanyName;
