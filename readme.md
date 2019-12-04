@@ -17,3 +17,4 @@ gcloud beta emulators datastore start --host-port 127.0.0.1:8081 --project distr
 #Vragen maandag:
 1) 2 specials confirmen
 2) 3 Eco's confirmen -> Random kan dezelfde auto's aanwijzen
+3) Vraag 9: publish/subscribe? Saga?
