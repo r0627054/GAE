@@ -27,14 +27,14 @@ In our solution we made use to pass this data by value. Passing this data by val
 
 
 	\paragraph{4. How have you implemented your backchannel? What triggers the backchannel to be used, how does the client use the backchannel and what information is sent?} \mbox{}\\\\
-We used an email service to let the customer know their reservation is in progress. When a client confirms a quote, the client-side will create a task in the queue and the user is redirected to another page which shows the message that the reservation is received by the server. When the task has been executed, the worker will send another email to the customer. This could either be a success or failure email, since there could be a conflict with the current reservations and the requested reservations at the point of execution. Either way, we supply the list of reservations in this mail to make sure the customer has all the details.\mbox{}\\\\
+We used an email service to let the customer know if their reservations were made. When a client confirms a quote, the client-side will create a task in the queue and the user is redirected to another page which shows the message that the reservation is received by the server. When the task has been executed, the worker will send another email to the customer. This could either be a success or failure email, since there could be a conflict with the current reservations and the requested reservations at the point of execution. Either way, we supply the list of reservations in this mail to make sure the customer has all the details.\mbox{}\\\\
 We chose this kind of backchannel instead of a status message on the website, since we feel like a customer will never leave the website open for hours/days to track their progress.
 
 
 
 
 	\paragraph{5. How does your solution to indirect communication improve scalability?} \mbox{}\\\\
-Since the critical transactions are executed on a different servlet (which could run on a totally different server) and are simply called with an URL and a payload, the load on the client-side server is reduced. This way we can separate the load on servers, which improves scalability.
+Since the bottleneck transactions are executed on a different servlet (which could run on a totally different server) and are simply called with an URL and a payload, the load on the client-side server is reduced. This way we can separate the load on servers, which improves scalability.
 
 		\paragraph{6. Workers in GAE’s Task Queues are by default set to run in parallel. While parallelism is usually a desirable property of a cloud service, as it enables scalability and thus faster overall processing, it may also endanger the application’s state consistency. Assume a scenario in which two different clients try to confirm a couple of tentative reservations, i.e. their quotes are queued to be processed by the back end. Both include a tentative reservation for the last available car of a certain car type, so that, assuming correct behaviour of the car rental application, it should fail to confirm the quotes for one of them.} \mbox{}\\\\
 
