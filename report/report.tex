@@ -58,9 +58,8 @@ Since we can replicate the data very easily, this means that availability will g
 	
 
 	\paragraph{8. How have you structured your data model (i.e. the entities and their relationships)? Compared to a relational database, what sort of query limitations have you faced when using the Cloud Datastore?} \mbox{}\\\\
-	\ref{fig:structure}
-	Since the only type of relationship between two entities is a one-to-many (child/parent) relation, we created a parent root entity for each CarRentalCompany. Each company has a list of CarTypes, which have a list of Cars. And these cars have a list of reservations, since we never store quotes permanently.
-	Not being able to join tables made the querying harder, since for example we needed to specify all the parents in a key to query the child of these parents. Above that, since we're using Google App Engine, we are dependant on the restrictions which Google specifies. For example it is impossible to create a query with more than one comparison (greater/lower/or equals than). 
+	Figure \ref{fig:structure} shows the structure of the data model. Since the only type of relationship between two entities is a one-to-many (child/parent) relation, we created a parent root entity for each CarRentalCompany. Each company has a list of CarTypes, which on his turn has a list of Cars. And each car has a list of reservations. Quotes are not stored in the database.\\
+Not being able to join tables made the querying harder, for example, we needed to specify each parent in each key to query the child of these parents. Above that, since we're using Google App Engine, we are dependent on the restrictions which Google specifies. For example it is impossible to create a query with more than one quantity comparison (greater/lower). 
 	
 
 
