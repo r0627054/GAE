@@ -42,13 +42,13 @@ resulting in a positive confirmation to both clients’ quotes?}\mbox{}\\\\
 Yes, there is a possible scenario. The most simple scenario is that the application makes use of one queue and two workers which can execute tasks in parallel. If the confirmation of two lists of quotes are executed in parallel on the workers, an inconsitent state can occur. This happens when both workers request the status of the same car, while no actual reservation is already made. Both workers will make the reservation, while one reservation should have failed.
 
 \paragraph{(b) If so, can you name and illustrate one (or more) possibilities to prevent this bogus behaviour?}\mbox{}\\\\
+One possible solution to this problem is to use only one worker for the single queue. The advantage is that the task is still propagated to the single worker, so the front-end does not have to do this task. The disadvantages is that the performance is downgraded because no tasks can be executed in parallel. This makes the application not scalable.
+\clearpage
 
 \paragraph{(c) In case your solution to the previous question limits parallelism, would a different design of
 the indirect communication channels help to increase parallelism? For this question, you may
 assume that a client will have quotes belonging to one car rental company only.}\mbox{}\\\\
-A different design could be that we create a queue for each car rental company, with one worker on each queue. This will allow parallelism between companies so that we can process the `confirmQuotes' method of each company at the same time. Furthermore, the single worker guarantees that there is never a inconsistent state.
-
-
+A different design could be that we create a queue for each car rental company, with one worker linked to each queue. This will allow parallelism between companies so that we can process the `confirmQuotes' method of each company in parallel. Furthermore, the single worker guarantees that an inconsistent state will never occur.
  
 
 	\paragraph{7.  How does using a NoSQL database affect scalability and availability?} \mbox{}\\\\
