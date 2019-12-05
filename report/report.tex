@@ -65,8 +65,11 @@ Not being able to join tables made the querying harder, for example, we needed t
 
 	\paragraph{9. What is the most critical difference between confirmQuote and confirmQuotes from the viewpoint of transaction management? Explain an alternative to your solution for the all-or-nothing semantics of confirmQuotes which is essentially different from the viewpoint of transaction management. Given the underlying distributed storage layer, what are the implications of each solution for performance and data consistency?} \mbox{}\\\\
 	The single `confirmQuote' does not need an implicit transaction, because when we try to confirm the quote, it will look for available cars. If there are no available cars found, the server will never create a Reservation. Thus we never need to cancel the transaction, since no data is stored in the store.
-	The multiple `confirmQuotes' does need a transaction for obvious reasons. If any of the reservations fail, all of them should revert and the data is never committed. \mbox{}\\\\
+	The multiple `confirmQuotes' does need a transaction for because we want to make sure the changes are treated as a whole. If any of the reservations fail, all of them should revert and the data is never committed. \\
+	An alternative to this transaction implementation, but still requiring the all-or-nothing semantics, could be that the worker subscribes to the datastore if new reservations are added. The worker itself would push the data to the datastore to try to make reservations, and the store will publish an event regarding the new reservations to all the subscribers. If the reservations are invalid, an `invalid' event would be published. This way the worker(s) will know one of their orders has been cancelled.\\
+	A big advantage is that the worker's load is reduced and can handle parallelism without losing consistency. We can easily create multiple different workers to create reservations. A disadvantage is that the datastore now needs to do more work and is responsible for multiple requests for each new reservation. Another disadvantage is when the number of requests increase, it will become harder to maintain and debug. \\
 	
+	Saga?
 	
 	
 	
