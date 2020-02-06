@@ -1,7 +1,7 @@
 # Google AE
 KULeuven Distributed Systems
 
-**Overall score**: 18/20
+**Overall score**: 15.25/20
 
 **Year**: 2019-2020 Master of Science in the Applied Informatics
 
